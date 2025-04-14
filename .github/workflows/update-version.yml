@@ -1,1 +1,49 @@
-
+name: Update Version File
+on:
+  push:
+    paths:
+      - 'svg/**/*.svg'
+    branches: [ main ]
+jobs:
+  update-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+      
+      - name: Create version.json
+        run: |
+          python -c "
+          import os
+          import json
+          import hashlib
+          
+          def calculate_file_hash(filepath):
+              sha256_hash = hashlib.sha256()
+              with open(filepath, 'rb') as f:
+                  for byte_block in iter(lambda: f.read(4096), b''):
+                      sha256_hash.update(byte_block)
+              return sha256_hash.hexdigest()
+          
+          svg_files = {}
+          svg_dir = 'svg'
+          for filename in os.listdir(svg_dir):
+              if filename.endswith('.svg'):
+                  filepath = os.path.join(svg_dir, filename)
+                  svg_files[filename] = calculate_file_hash(filepath)
+          
+          with open('version.json', 'w') as f:
+              json.dump(svg_files, f, indent=2)
+          "
+      
+      - name: Commit and push if changed
+        run: |
+          git config --global user.name 'GitHub Action'
+          git config --global user.email 'action@github.com'
+          git add version.json
+          git diff --quiet && git diff --staged --quiet || git commit -m "Update version.json"
+          git push
