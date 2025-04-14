@@ -4,7 +4,11 @@ on:
     paths:
       - 'svg/**/*.svg'
     branches: [ main ]
-  workflow_dispatch:  
+  workflow_dispatch:
+
+permissions:
+  contents: write  # 저장소 컨텐츠 쓰기 권한 명시적 부여
+  
 jobs:
   update-version:
     runs-on: ubuntu-latest
