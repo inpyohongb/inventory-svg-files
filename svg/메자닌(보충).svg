@@ -3029,6 +3029,8 @@
   <line x1="814" y1="249" x2="825" y2="260" class="diagonal-line"/>
   <rect x="825" y="249" width="11" height="11" data-value="2F-R6-16-1" class="cell 피킹"/>
   <line x1="825" y1="249" x2="836" y2="260" class="diagonal-line"/>
+  <rect x="481" y="250" width="15" height="12" data-value="2F-O1-11-1" class="cell 피킹"/>
+  <line x1="481" y1="250" x2="496" y2="262" class="diagonal-line"/>
   <rect x="614" y="256" width="11" height="11" data-value="2F-R1-31-1" class="cell 피킹"/>
   <line x1="614" y1="256" x2="625" y2="267" class="diagonal-line"/>
   <rect x="694" y="257" width="11" height="11" data-value="2F-R2-9-1" class="cell 피킹"/>
