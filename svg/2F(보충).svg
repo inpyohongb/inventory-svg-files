@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="-1 -1 1292 730" preserveAspectRatio="xMidYMid meet">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-1 -1 1289 730" preserveAspectRatio="xMidYMid meet">
   <style>
         .cell { stroke: black; stroke-width: 0.5; fill: white; }
         .피킹 { fill-opacity: 0.3; stroke-dasharray: 2,2; }
@@ -3537,6 +3537,8 @@
   <line x1="450" y1="572" x2="459" y2="583" class="diagonal-line"/>
   <rect x="957" y="573" width="6" height="5" data-value="2F-F1-14-3" class="cell 피킹"/>
   <line x1="957" y1="573" x2="963" y2="578" class="diagonal-line"/>
+  <rect x="1276" y="575" width="11" height="11" data-value="2F-G4-44-1" class="cell 피킹"/>
+  <line x1="1276" y1="575" x2="1287" y2="586" class="diagonal-line"/>
   <rect x="329" y="578" width="9" height="11" data-value="2F-BA1-8-1" class="cell 피킹"/>
   <line x1="329" y1="578" x2="338" y2="589" class="diagonal-line"/>
   <rect x="338" y="578" width="9" height="11" data-value="2F-BA1-8-1" class="cell 피킹"/>
@@ -3652,6 +3654,8 @@
   <rect x="1244" y="584" width="6" height="13" data-value="2F-G4-21-3" class="cell 보충"/>
   <rect x="1250" y="584" width="6" height="13" data-value="2F-G4-21-2" class="cell 보충"/>
   <rect x="1256" y="584" width="6" height="13" data-value="2F-G4-21-1" class="cell 보충"/>
+  <rect x="1276" y="586" width="11" height="11" data-value="2F-G4-43-1" class="cell 피킹"/>
+  <line x1="1276" y1="586" x2="1287" y2="597" class="diagonal-line"/>
   <rect x="957" y="587" width="6" height="5" data-value="2F-F1-15-2" class="cell 피킹"/>
   <line x1="957" y1="587" x2="963" y2="592" class="diagonal-line"/>
   <rect x="329" y="589" width="9" height="11" data-value="2F-BA1-7-1" class="cell 피킹"/>
