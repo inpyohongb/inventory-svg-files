@@ -67,18 +67,6 @@
   <line x1="499" y1="63" x2="514" y2="79" class="diagonal-line"/>
   <rect x="514" y="63" width="15" height="16" data-value="2F-O10-31-1" class="cell 피킹"/>
   <line x1="514" y1="63" x2="529" y2="79" class="diagonal-line"/>
-  <rect x="710" y="74" width="11" height="11" data-value="2F-ZA1-1-1" class="cell 피킹"/>
-  <line x1="710" y1="74" x2="721" y2="85" class="diagonal-line"/>
-  <rect x="721" y="74" width="11" height="11" data-value="2F-ZA1-1-1" class="cell 피킹"/>
-  <line x1="721" y1="74" x2="732" y2="85" class="diagonal-line"/>
-  <rect x="732" y="74" width="11" height="11" data-value="2F-ZA1-1-1" class="cell 피킹"/>
-  <line x1="732" y1="74" x2="743" y2="85" class="diagonal-line"/>
-  <rect x="750" y="74" width="11" height="11" data-value="2F-ZB1-1-1" class="cell 피킹"/>
-  <line x1="750" y1="74" x2="761" y2="85" class="diagonal-line"/>
-  <rect x="761" y="74" width="11" height="11" data-value="2F-ZB1-1-1" class="cell 피킹"/>
-  <line x1="761" y1="74" x2="772" y2="85" class="diagonal-line"/>
-  <rect x="779" y="74" width="11" height="11" data-value="2F-ZC1-1-1" class="cell 피킹"/>
-  <line x1="779" y1="74" x2="790" y2="85" class="diagonal-line"/>
   <rect x="654" y="91" width="11" height="11" data-value="2F-R1-2-1" class="cell 피킹"/>
   <line x1="654" y1="91" x2="665" y2="102" class="diagonal-line"/>
   <rect x="665" y="91" width="11" height="11" data-value="2F-R2-36-1" class="cell 피킹"/>
