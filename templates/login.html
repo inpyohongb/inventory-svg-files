@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>평택냉장 도면 WEB</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .login-container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 300px;
+        }
+        h1 {
+            margin-top: 0;
+            margin-bottom: 2rem;
+            font-size: 2rem;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Center align form elements */
+        }
+        label {
+            align-self: flex-start; /* Align the label to the left */
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+        input {
+            display: block;
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .error-message {
+            color: red;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>평택냉장 도면 WEB</h1>
+        <form method="POST">
+            <input type="text" name="user_id" placeholder="RMS ID" required>
+            <button type="submit">로그인</button>
+        </form>
+        {% if error %}
+        <p class="error-message">로그인에 실패했습니다.<br>ID를 확인해주세요</p>
+        {% endif %}
+    </div>
+</body>
+</html>
