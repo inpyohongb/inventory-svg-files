@@ -3,11 +3,12 @@ on:
   push:
     paths:
       - 'svg/**/*.svg'
+      - 'templates/**/*.html'
     branches: [ main ]
   workflow_dispatch:
 
 permissions:
-  contents: write  # 저장소 컨텐츠 쓰기 권한 명시적 부여
+  contents: write
   
 jobs:
   update-version:
@@ -34,15 +35,27 @@ jobs:
                       sha256_hash.update(byte_block)
               return sha256_hash.hexdigest()
           
-          svg_files = {}
+          version_data = {}
+          
+          # SVG 파일 처리
           svg_dir = 'svg'
-          for filename in os.listdir(svg_dir):
-              if filename.endswith('.svg'):
-                  filepath = os.path.join(svg_dir, filename)
-                  svg_files[filename] = calculate_file_hash(filepath)
+          if os.path.exists(svg_dir):
+              for filename in os.listdir(svg_dir):
+                  if filename.endswith('.svg'):
+                      filepath = os.path.join(svg_dir, filename)
+                      version_data[filename] = calculate_file_hash(filepath)
+          
+          # Templates 파일 처리
+          templates_dir = 'templates'
+          if os.path.exists(templates_dir):
+              for filename in os.listdir(templates_dir):
+                  if filename.endswith('.html'):
+                      filepath = os.path.join(templates_dir, filename)
+                      # templates/ 접두사를 추가하여 키 생성
+                      version_data[f'templates/{filename}'] = calculate_file_hash(filepath)
           
           with open('version.json', 'w') as f:
-              json.dump(svg_files, f, indent=2)
+              json.dump(version_data, f, indent=2, ensure_ascii=False)
           "
       
       - name: Commit and push if changed
