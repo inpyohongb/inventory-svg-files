@@ -1433,6 +1433,7 @@
             dashboardContent.innerHTML = html;
             
             // 전체 존 평균 차트 생성
+                // 전체 존 평균 차트 생성
             createSummaryCharts(summaryStats, zones, statistics);
             
             // 존별 차트 생성
@@ -1508,7 +1509,7 @@
                         plugins: {
                             title: {
                                 display: true,
-                                text: `평균 판매량 (전체 평균: ${summaryStats.avgSales.toFixed(2)})`,
+                                text: `평균 판매량`,
                                 font: { size: 14 }
                             },
                             legend: {
@@ -1529,7 +1530,9 @@
                             }
                         }
                     }
-                });
+                 });
+                // add global average overlay to top-right of the chart container
+                addChartOverlay(salesCtx.parentElement, `전체 평균: ${summaryStats.avgSales.toFixed(2)}`);
             }
             
             // 평균 입고주기 차트 (존별 비교)
@@ -1564,7 +1567,7 @@
                         plugins: {
                             title: {
                                 display: true,
-                                text: `평균 입고주기 (전체 평균: ${summaryStats.avgRestockCycle.toFixed(2)})`,
+                                text: `평균 입고주기`,
                                 font: { size: 14 }
                             },
                             legend: {
@@ -1585,7 +1588,8 @@
                             }
                         }
                     }
-                });
+                 });
+                addChartOverlay(restockCtx.parentElement, `전체 평균: ${summaryStats.avgRestockCycle.toFixed(2)}`);
             }
             
             // SKU, UNIT 차트
@@ -1639,7 +1643,7 @@
                         plugins: {
                             title: {
                                 display: true,
-                                text: `SKU/UNIT (전체 SKU: ${summaryStats.totalSku}, 전체 UNIT: ${summaryStats.totalUnit.toFixed(0)})`,
+                                text: `SKU/UNIT`,
                                 font: { size: 14 }
                             },
                             legend: {
@@ -1678,7 +1682,8 @@
                             }
                         }
                     }
-                });
+                 });
+                addChartOverlay(skuUnitCtx.parentElement, `전체 SKU: ${summaryStats.totalSku} / 전체 UNIT: ${summaryStats.totalUnit.toFixed(0)}`);
             }
             
             // 평균 회전일 차트 (존별 비교)
@@ -1713,8 +1718,14 @@
                         plugins: {
                             title: {
                                 display: true,
-                                text: `평균 회전일 (전체 평균: ${summaryStats.avgTurnoverDays.toFixed(2)})`,
+                                text: `평균 회전일`,
                                 font: { size: 14 }
+                            },
+                            subtitle: {
+                                display: true,
+                                text: '회전일 = 평균 입고량 / 평균 판매량',
+                                font: { size: 12 },
+                                color: '#333'
                             },
                             legend: {
                                 display: true,
@@ -1734,8 +1745,22 @@
                             }
                         }
                     }
-                });
+                 });
+                addChartOverlay(turnoverCtx.parentElement, `전체 평균: ${summaryStats.avgTurnoverDays.toFixed(2)}`);
             }
+        }
+
+        // 차트 상단 우측에 전체 평균(또는 요약값)을 표시하는 오버레이 추가 함수
+        function addChartOverlay(container, text) {
+            if (!container) return;
+            // .chart-overlay-label 요소가 있으면 텍스트만 업데이트
+            let overlay = container.querySelector('.chart-overlay-label');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.className = 'chart-overlay-label';
+                container.appendChild(overlay);
+            }
+            overlay.textContent = text;
         }
 
         // 존별 차트 생성 함수
@@ -1877,6 +1902,19 @@
                 .chart-canvas {
                     height: 120px !important;
                     max-height: 120px;
+                }
+                .chart-overlay-label {
+                    position: absolute;
+                    top: 8px;
+                    right: 12px;
+                    background: rgba(255,255,255,0.95);
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    border: 1px solid #eee;
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+                    font-size: 12px;
+                    color: #333;
+                    z-index: 10;
                 }
             `;
             document.head.appendChild(style);
