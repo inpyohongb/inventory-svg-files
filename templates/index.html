@@ -1,0 +1,1929 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>냉장 도면</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div id="container">
+        <div id="controls">
+            <div class="controls-bottom">
+                <div id="filters">
+                    <div class="filters-row">
+                        <!-- 첫 번째 줄: 3개 필터 -->
+                        <div class="filter-container">
+                            <div class="filter-title">입고주기</div>
+                            <select id="restockCycleSelect">
+                                <option value="none" selected>선택 안함</option>
+                                <option value="all">전체</option>
+                                <option value="supershort">초단기 (3일 이하)</option>
+                                <option value="short">단기 (3-7일)</option>
+                                <option value="week">1-2주 (8-14일)</option>
+                                <option value="month">2-4주 (15-30일)</option>
+                                <option value="long">장기 (30일 초과)</option>
+                            </select>
+                        </div>
+                        <div class="filter-container">
+                            <div class="filter-title">평균판매량</div>
+                            <select id="avgSalesSelect">
+                                <option value="none" selected>선택 안함</option>
+                                <option value="all">전체</option>
+                                <option value="low">저판매 (10개 이하)</option>
+                                <option value="medium">중판매 (11-100개)</option>
+                                <option value="high">고판매 (100개 초과)</option>
+                            </select>
+                        </div>
+                        <div class="filter-container">
+                            <div class="filter-title">보관유형</div>
+                            <select id="keepTypeSelect">
+                                <option value="none" selected>선택 안함</option>
+                                <option value="all">전체</option>
+                                <option value="room">상온</option>
+                                <option value="cold">냉장</option>
+                                <option value="frozen">냉동</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="filters-row">
+                        <!-- 두 번째 줄: 2개 필터 -->
+                        <div class="filter-container">
+                            <div class="filter-title">보충주기</div>
+                            <select id="supplyCycleSelect">
+                                <option value="none" selected>선택 안함</option>
+                                <option value="all">전체</option>
+                                <option value="not">보충X</option>
+                                <option value="less1day">고보충 (1일 미만)</option>
+                                <option value="2day">중보충 (1일~2일)</option>
+                                <option value="more2day">저보충 (2일 이상)</option>
+                            </select>
+                        </div>
+                        <div class="filter-container">
+                            <div class="filter-title">중량</div>
+                            <select id="weightSelect">
+                                <option value="none" selected>선택 안함</option>
+                                <option value="all">전체</option>
+                                <option value="less500">500g 이하</option>
+                                <option value="500n1kg">500g ~ 1kg</option>
+                                <option value="more1kg">1kg 이상</option>
+                            </select>
+                        </div>
+                        <div class="filter-container">
+                            <div class="filter-title">판매방법</div>
+                            <select id="salesMethodSelect">
+                                <option value="none" selected>선택 안함</option>
+                                <option value="all">전체</option>
+                                <option value="pre">선판매</option>
+                                <option value="post">후판매</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div id="searchSection">
+                    <div>
+                        <span class="section-title">검색어 구분</span>
+                        <select id="searchDropdown">
+                            <option value="location">지번명</option>
+                            <option value="supplierCode">공급사코드</option>
+                            <option value="supplierName">공급사명</option>
+                            <option value="goodsCode">상품코드</option>
+                            <option value="goodsName">상품명</option>
+                            <option value="category">카테고리</option>
+                        </select>
+                    </div>
+                    <div>
+                        <span class="section-title">검색어</span>
+                        <input type="text" id="searchInput" placeholder="검색어를 입력하세요...">
+                    </div>
+                    <div class="search-controls">
+                        <button onclick="search()">검색</button>
+                        <button onclick="resetSearch()">초기화</button>
+                    </div>
+                    <div id="searchResultCount" style="margin-left: 10px;"></div>
+                </div>
+                <div class="stats-container">
+                    <div class="total-sku">2층 전체 sku: <span id="skuCount">0</span></div>
+                    <div class="last-update-time" id="lastUpdateTime"></div>
+                </div>
+                <div id="filterLegend">
+                    <div class="legend-container">
+                        <div class="legend-section">
+                            <h5>입고주기</h5>
+                            <div class="legend-item"><span class="color-box" style="background-color: blue;"></span> 3일 이하</div>
+                            <div class="legend-item"><span class="color-box" style="background-color: green;"></span> 3-7일</div>
+                            <div class="legend-item"><span class="color-box" style="background-color: orange;"></span> 8-14일</div>
+                            <div class="legend-item"><span class="color-box" style="background-color: yellow;"></span> 15-30일</div>
+                            <div class="legend-item"><span class="color-box" style="background-color: red;"></span> 30일 초과</div>
+                        </div>
+                        <div class="legend-section">
+                            <h5>판매량</h5>
+                            <div class="legend-item"><span class="color-box" style="background-color: red;"></span> 10 이하</div>
+                            <div class="legend-item"><span class="color-box" style="background-color: yellow;"></span> 11-100</div>
+                            <div class="legend-item"><span class="color-box" style="background-color: green;"></span> 100 초과</div>
+                        </div>
+                        <div class="legend-section">
+                            <h5>판매방법</h5>
+                            <div class="legend-item"><span class="color-box" style="background-color: red;"></span> 선판매</div>
+                            <div class="legend-item"><span class="color-box" style="background-color: blue;"></span> 후판매</div>
+                        </div>
+                        <div class="legend-section">
+                            <h5>보충주기</h5>
+                            <div class="legend-item"><span class="color-box" style="background-color: gray;"></span> 보충X</div>
+                            <div class="legend-item"><span class="color-box" style="background-color: green;"></span> 1일 미만</div>
+                            <div class="legend-item"><span class="color-box" style="background-color: yellow;"></span> 1일-2일</div>
+                            <div class="legend-item"><span class="color-box" style="background-color: red;"></span> 2일 이상</div>
+                        </div>
+                        <div class="legend-section">
+                            <h5>중량</h5>
+                            <div class="legend-item"><span class="color-box" style="background-color: red;"></span> 500g 이하</div>
+                            <div class="legend-item"><span class="color-box" style="background-color: yellow;"></span> 500g~1kg</div>
+                            <div class="legend-item"><span class="color-box" style="background-color: green;"></span> 1kg 이상</div>
+                        </div>
+                        <div class="legend-section">
+                            <h5>보관유형</h5>
+                            <div class="legend-item"><span class="color-box" style="background-color: yellow;"></span> 상온</div>
+                            <div class="legend-item"><span class="color-box" style="background-color: green;"></span> 냉장</div>
+                            <div class="legend-item"><span class="color-box" style="background-color: blue;"></span> 냉동</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="svgContainer"></div>
+        <div id="popup"></div>
+        <div id="tabSection">
+            <div id="tabs">
+                <div class="tab active" data-sheet="Summary">Summary</div>
+                <div class="tab" data-sheet="2F(피킹)">2F(피킹)</div>
+                <div class="tab" data-sheet="메자닌(피킹)">메자닌(피킹)</div>
+                <div class="tab" data-sheet="1F(피킹)">1F(피킹)</div>
+                <div class="tab" data-sheet="2F(보충)">2F(보충)</div>
+                <div class="tab" data-sheet="메자닌(보충)">메자닌(보충)</div>
+                <div class="tab" data-sheet="1F(보충)">1F(보충)</div>
+            </div>
+        </div>
+        <div id="summaryDashboard" style="display: none;">
+            <div class="dashboard-container">
+                <h2>존별 통계 대시보드</h2>
+                <div id="dashboardContent"></div>
+            </div>
+        </div>
+        <div id="logoutButton">
+            <button onclick="logout()">로그아웃</button>
+        </div>
+    </div>
+</body>
+</html>
+    <div id="imagePopup" class="image-popup"></div>
+    <div id="inventoryHistoryPopup" class="popup" style="display: none;"></div>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let currentSheet = 'Summary';
+        let currentScale = getInitialScale(currentSheet);
+        let currentPositionX = getInitialPosition(currentSheet).x;
+        let currentPositionY = getInitialPosition(currentSheet).y;
+        let isDragging = false;
+        let startX, startY, svgX, svgY;
+        let inventoryData = [];
+        let activeFilter = null;
+        let activeRestockCycleFilter = 'none';
+        let activeAvgSalesFilter = 'none';
+        let activeSalesMethodFilter = 'none';
+        let activeSupplyCycleFilter = 'none';
+        let activeWeightFilter = 'none';
+        let activeKeepTypeFilter = 'none';
+        let popupHideTimeout;
+        let activePopups = [];
+        let searchResults = [];
+        let resultCount = 0;
+        
+        function getInitialScale(sheet) {
+            switch(sheet) {
+                case "Summary":
+                    return 1.0; // Summary는 SVG를 사용하지 않으므로 의미 없음
+                case "2F(피킹)":
+                    return 0.8;
+                case "2F(보충)":
+                    return 0.73;
+                case "메자닌(피킹)":
+                    return 0.63;
+                case "메자닌(보충)":
+                    return 0.95;
+                case "1F(피킹)":
+                    return 0.45;
+                case "1F(보충)":
+                    return 0.38;         
+                default:
+                    return 0.5; // 기본값
+            }
+        }
+
+        function getInitialPosition(sheet) {
+            switch(sheet) {
+                case "Summary":
+                    return { x: 0, y: 0 }; // Summary는 SVG를 사용하지 않으므로 의미 없음
+                case "2F(피킹)":
+                    return { x: 0, y: 0 }; // 기본 위치
+                case "2F(보충)":
+                    return { x: 0, y: 0 }; // 기본 위치
+                case "메자닌(피킹)":
+                    return { x: 0, y: 0 }; // 기본 위치
+                case "메자닌(보충)":
+                    return { x: 0, y: 0 }; // 기본 위치
+                case "1F(피킹)":
+                    return { x: 30, y: 30 }; // 오른쪽으로 10px, 아래로 30px
+                case "1F(보충)":
+                    return { x: 100, y: 100 }; // 왼쪽으로 20px, 위로 20px
+                default:
+                    return { x: 0, y: 0 }; // 기본값
+            }
+        }
+
+        function setupEventListeners() {
+            const svgContainer = document.getElementById('svgContainer');
+            const svg = document.querySelector('svg');
+            svgContainer.addEventListener('mousedown', startDrag);
+            svgContainer.addEventListener('mousemove', drag);
+            svgContainer.addEventListener('mouseup', endDrag);
+            svgContainer.addEventListener('mouseleave', endDrag);
+            svgContainer.addEventListener('wheel', handleWheel, { passive: false });
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach(cell => {
+                cell.addEventListener('mouseover', handleMouseOver);
+                cell.addEventListener('mouseout', handleMouseOut);
+                cell.addEventListener('click', handleCellClick);
+            });
+            document.addEventListener('click', closePopupOnOutsideClick);
+            svg.addEventListener('mousemove', handleSVGMouseMove);
+            svg.addEventListener('click', handleSVGClick);
+        }
+
+        function handleSVGMouseMove(e) {
+            const cell = getElementFromPoint(e, '.cell');
+            if (cell) {
+                handleMouseOver({ target: cell });
+            } else {
+                handleMouseOut();
+            }
+        }
+
+        function handleSVGClick(e) {
+            const cell = getElementFromPoint(e, '.cell');
+            if (cell) {
+                handleCellClick({ target: cell });
+            }
+        }
+
+        function getElementFromPoint(e, selector) {
+            const svg = e.currentTarget;
+            const point = svg.createSVGPoint();
+            point.x = e.clientX;
+            point.y = e.clientY;
+            const transformedPoint = point.matrixTransform(svg.getScreenCTM().inverse());
+            const elements = svg.querySelectorAll(selector);
+            for (let element of elements) {
+                if (element.isPointInFill(transformedPoint)) {
+                    return element;
+                }
+            }
+            return null;
+        }
+
+        function switchTab(sheet) {
+            currentSheet = sheet;
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.sheet === sheet) {
+                    tab.classList.add('active');
+                }
+            });
+            
+            if (sheet === 'Summary') {
+                // Summary 탭인 경우 대시보드 표시
+                document.getElementById('svgContainer').style.display = 'none';
+                document.getElementById('summaryDashboard').style.display = 'block';
+                loadSummaryDashboard();
+            } else {
+                // 다른 탭인 경우 SVG 표시
+                document.getElementById('svgContainer').style.display = 'block';
+                document.getElementById('summaryDashboard').style.display = 'none';
+                currentScale = getInitialScale(sheet);
+                const position = getInitialPosition(sheet);
+                currentPositionX = position.x;
+                currentPositionY = position.y;
+                loadSVGWithZones(sheet);
+            }
+        }
+
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => switchTab(tab.dataset.sheet));
+        });
+
+        function zoomIn() {
+            currentScale *= 1.2;
+            updateTransform();
+        }
+
+        function zoomOut() {
+            currentScale /= 1.2;
+            updateTransform();
+        }
+
+        function resetView() {
+            currentScale = getInitialScale(currentSheet);
+            const position = getInitialPosition(currentSheet);
+            currentPositionX = position.x;
+            currentPositionY = position.y;
+            updateTransform();
+        }
+
+        function handleMouseOver(event) {
+            showPopup(event, false);
+        }
+
+        function handleMouseOut(event) {
+            const popup = document.getElementById('popup');
+            popup.style.display = 'none';
+        }
+
+        function handleCellClick(event) {
+            const cell = event.target;
+            const existingPopupIndex = activePopups.findIndex(item => item.cell === cell);
+            if (existingPopupIndex !== -1) {
+                // 이미 활성화된 셀을 다시 클릭하면 팝업 닫기
+                const { popup } = activePopups[existingPopupIndex];
+                removePopup(popup, cell);
+            } else {
+                showPopup(event, true);
+                cell.classList.add('active');
+                activePopups.push({ cell, popup: document.querySelector('.popup:last-child') });
+            }   
+            // 이벤트 버블링 방지
+            event.stopPropagation();
+        }
+
+        function updateTransform() {
+            const svg = document.querySelector('#svgContainer svg');
+            if (svg) {
+                svg.style.transform = `translate(${currentPositionX}px, ${currentPositionY}px) scale(${currentScale})`;
+                svg.style.transformOrigin = '0 0';
+            }
+        }
+
+        // 결과 개수를 업데이트하는 함수
+        function updateResultCount() {
+            let count = 0;
+            const svg = document.querySelector('#svgContainer svg');
+            if (svg) {
+                svg.querySelectorAll('.cell').forEach(cell => {
+                    if (cell.inventoryData) {
+                        let itemsToCount;
+                        if (searchResults.length > 0) {
+                            itemsToCount = cell.searchResults || [];
+                        } else {
+                            itemsToCount = cell.inventoryData;
+                        }
+                
+                        const filteredItems = filterInventoryData(itemsToCount);
+                        count += filteredItems.length;
+                    }
+                });
+            }
+            const countElement = document.getElementById('searchResultCount');
+            countElement.textContent = `결과 개수: ${count}개`;
+        }
+
+        function search() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const searchType = document.getElementById('searchDropdown').value;
+            const cells = document.querySelectorAll('.cell');
+            searchResults = [];
+            if (searchTerm.trim() !== '') {
+                if (searchType === 'location') {
+                    searchByLocation(searchTerm, cells);
+                } else {
+                    searchByAttribute(searchTerm, searchType, cells);
+                }
+            } else {
+                cells.forEach(cell => {
+                    cell.searchResults = null;
+                });
+            }
+            applyFilters();
+            updateResultCount();
+            if (searchTerm.trim() !== '' && searchResults.length === 0) {
+                showNoResultsAlert();
+            }
+        }
+
+        function showNoResultsAlert() {
+            alert("조건에 맞는 검색 결과가 없습니다");
+        }
+
+        function resetSearch() {
+            document.getElementById('searchInput').value = ''; // 검색창 초기화
+            document.getElementById('restockCycleSelect').value = 'none'; // 입고주기 드롭다운 초기화
+            document.getElementById('avgSalesSelect').value = 'none'; // 평균판매량 드롭다운 초기화
+            document.getElementById('salesMethodSelect').value = 'none';
+            document.getElementById('supplyCycleSelect').value = 'none';
+            document.getElementById('weightSelect').value = 'none';
+            document.getElementById('keepTypeSelect').value = 'none';
+            activeRestockCycleFilter = 'none';
+            activeAvgSalesFilter = 'none';
+            activeSalesMethodFilter = 'none';
+            activeSupplyCycleFilter = 'none';
+            activeWeightFilter = 'none';
+            activeKeepTypeFilter = 'none';
+            searchResults = []; // 검색 결과 초기화
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach(cell => {
+                cell.style.fill = ''; // 모든 셀 색상 초기화
+                cell.searchResults = null; // 셀의 검색 결과 초기화
+            });
+            applyFilters(); // 필터 재적용
+            updateResultCount();
+        }
+
+        function searchByLocation(searchTerm, cells) {
+            cells.forEach(cell => {
+                const cellValue = cell.getAttribute('data-value').toLowerCase();
+                if (cellValue.includes(searchTerm)) {
+                    searchResults.push(cell);
+                }
+            });
+        }
+
+        function searchByAttribute(searchTerm, searchType, cells) {
+            const attributeMap = {
+                'supplierCode': '공급사코드',
+                'supplierName': '공급사명',
+                'goodsCode': '상품코드',
+                'goodsName': '상품명',
+                'category': '카테고리'
+            };
+            const attribute = attributeMap[searchType];
+            cells.forEach(cell => {
+                if (cell.inventoryData) {
+                    const matchingItems = cell.inventoryData.filter(item => 
+                        item[attribute] && item[attribute].toLowerCase().includes(searchTerm)
+                    );
+                    if (matchingItems.length > 0) {
+                        searchResults.push(cell);
+                        cell.searchResults = matchingItems;
+                    }
+                }
+            });
+        }
+
+        function startDrag(e) {
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            const svg = document.querySelector('svg');
+            const transform = new DOMMatrix(window.getComputedStyle(svg).transform);
+            svgX = transform.e;
+            svgY = transform.f;
+        }
+
+        function drag(e) {
+            if (!isDragging) return;
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            const svg = document.querySelector('svg');
+            svg.style.transform = `translate(${svgX + dx}px, ${svgY + dy}px) scale(${currentScale})`;
+        }
+
+        function endDrag() {
+            isDragging = false;
+        }
+
+        function handleWheel(e) {
+            e.preventDefault();
+            const delta = e.deltaY;
+            if (delta > 0) {
+                currentScale /= 1.1;
+            } else {
+                currentScale *= 1.1;
+            }
+            updateTransform();
+        }
+
+        function hidePopup() {
+            document.getElementById('popup').style.display = 'none';
+            document.getElementById('imagePopup').style.display = 'none';
+            if (activeCell) {
+                activeCell.classList.remove('active');
+                activeCell = null;
+            }
+        }
+
+        function loadInventoryData() {
+            return fetch(`/api/inventory_data?sheet=${currentSheet}`)
+                .then(response => response.json())
+                .then(responseData => {
+                    inventoryData = responseData.data;
+                    console.log('Inventory data loaded:', inventoryData.slice(0, 1));
+                    console.log('Total items:', inventoryData.length);
+                    // SKU 수 계산 및 표시
+                    const uniqueSkus = new Set(inventoryData.map(item => item['상품코드']));
+                    document.getElementById('skuCount').textContent = uniqueSkus.size;
+                    // 마지막 업데이트 시간 표시
+                    document.getElementById('lastUpdateTime').textContent = `최근 업데이트: ${responseData.lastUpdateTime}`;
+                })
+                .catch(error => console.error('Error loading inventory data:', error));
+        }
+
+        // 필터 토글 함수 추가
+        function toggleFilter(filterName) {
+            activeFilter = activeFilter === filterName ? null : filterName;
+            const svg = document.querySelector('#svgContainer svg');
+            if (svg) {
+                svg.querySelectorAll('.cell').forEach(cell => {
+                    if (activeFilter === '입고주기') {
+                        if (cell.inventoryData) {
+                            updateElementColor(cell, cell.inventoryData);
+                        } else {
+                            cell.style.fill = '';
+                        }
+                    } else {
+                        cell.style.fill = '';
+                    }
+                });
+            }
+            // 필터가 해제되면 드롭다운을 초기 상태로 리셋
+            if (activeFilter === null) {
+                document.getElementById('filterSelect').value = 'none';
+            }
+        }
+
+        // 팝업의 위치를 조정하는 새로운 함수
+        function adjustPopupPosition(popup, x, y) {
+            const rect = popup.getBoundingClientRect();
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            // 오른쪽 경계 확인
+            if (x + rect.width > viewportWidth) {
+                x = viewportWidth - rect.width;
+            }
+            // 아래쪽 경계 확인
+            if (y + rect.height > viewportHeight) {
+                y = viewportHeight - rect.height;
+            }
+            // 왼쪽과 위쪽 경계도 확인 (음수 값 방지)
+            x = Math.max(0, x);
+            y = Math.max(0, y);
+            popup.style.left = x + 'px';
+            popup.style.top = y + 'px';
+        }
+
+        // 팝업을 표시하는 함수
+        function showPopup(event, isClick = false) {
+            const cell = event.target;
+            const items = cell.inventoryData;
+            let popup;
+            if (isClick) {
+                popup = createPopup(event, cell);
+            } else {
+                popup = document.getElementById('popup');
+                const content = createPopupContent(cell, items);
+                popup.innerHTML = content;
+                popup.style.display = 'block';
+                adjustPopupPosition(popup, event.pageX + 10, event.pageY + 10);
+            }
+
+            popup.addEventListener('mouseover', handlePopupMouseOver);
+            popup.addEventListener('mouseout', handlePopupMouseOut);
+
+        }
+
+        function handlePopupMouseOver(event) {
+            if (event.target.classList.contains('image-url')) {
+                showImagePopup(event);
+            } else if (event.target.classList.contains('inventory-history')) {
+                showInventoryHistoryPopup(event);
+            }
+        }
+
+        function handlePopupMouseOut(event) {
+            if (event.target.classList.contains('image-url')) {
+                hideImagePopup();
+            } else if (event.target.classList.contains('inventory-history')) {
+                hideInventoryHistoryPopup();
+            }
+        }
+
+        function createPopup(event, cell) {
+            const items = cell.inventoryData;
+            const content = createPopupContent(cell, items);
+            const popup = document.createElement('div');
+            popup.className = 'popup';
+            popup.innerHTML = content;
+            document.body.appendChild(popup);
+            adjustPopupPosition(popup, event.pageX + 10, event.pageY + 10);
+            // 닫기 버튼 추가
+            const closeButton = document.createElement('button');
+            closeButton.textContent = 'X';
+            closeButton.style.position = 'absolute';
+            closeButton.style.top = '5px';
+            closeButton.style.right = '5px';
+            closeButton.addEventListener('click', () => removePopup(popup, cell));
+            popup.appendChild(closeButton);
+            // 드래그 기능 추가
+            makeDraggable(popup);
+            return popup;
+        }
+
+        function makeDraggable(popup) {
+            let isDragging = false;
+            let startX, startY;
+            popup.addEventListener('mousedown', startDrag);
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', endDrag);
+
+            function startDrag(e) {
+                if (e.target === popup || popup.contains(e.target)) {
+                    isDragging = true;
+                    startX = e.clientX - popup.offsetLeft;
+                    startY = e.clientY - popup.offsetTop;
+                    popup.style.cursor = 'grabbing';
+                }
+            }
+
+            function drag(e) {
+                if (!isDragging) return;
+                const newX = e.clientX - startX;
+                const newY = e.clientY - startY;
+                popup.style.left = `${newX}px`;
+                popup.style.top = `${newY}px`;
+            }
+
+            function endDrag() {
+                isDragging = false;
+                popup.style.cursor = 'grab';
+            }
+        }
+
+        function removePopup(popup, cell) {
+            document.body.removeChild(popup);
+            cell.classList.remove('active');
+            activePopups = activePopups.filter(item => item.popup !== popup);
+        }
+
+        function closePopupOnOutsideClick(event) {
+            if (!event.target.closest('.cell') && !event.target.closest('.popup')) {
+                activePopups.forEach(({ popup, cell }) => removePopup(popup, cell));
+            }
+        }
+
+        // 팝업 내용을 생성하는 함수
+        function createPopupContent(cell, items) {
+            const location = cell.getAttribute('data-value');
+            let address = 'N/A';
+            if (items && items.length > 0) {
+                address = items[0]['지번'] || address;
+            } else if (cell.inventoryData && cell.inventoryData.length > 0) {
+                address = cell.inventoryData[0]['지번'] || address;
+            }
+            let content = `<strong>지번명: ${location} (${address})</strong><br><br>`;
+            if (!items || items.length === 0) {
+                return content + "재고 없음";
+            } else {
+                let filteredItems;
+
+                if (searchResults.length > 0 && cell.searchResults) {
+                    filteredItems = filterInventoryData(cell.searchResults);
+                } else {
+                    filteredItems = filterInventoryData(items);
+                }
+
+                if (filteredItems.length === 0) {
+                    content + "해당 조건의 재고 없음";
+                } else {
+                    filteredItems.forEach((item, index) => {
+                        if (index > 0) {
+                            content += '<hr>'; // 각 아이템 사이에 구분선 추가
+                        }
+                        content += `
+                            상품코드: ${item['상품코드'] || 'N/A'}<br>
+                            상품명: ${item['상품명'] || 'N/A'}<br>
+                            공급사명: ${item['공급사명'] || 'N/A'}<br>
+                            평균판매량: ${item['평균판매량'] || 'N/A'}<br>
+                            입고주기: ${item['입고주기'] || 'N/A'}<br>
+                            평균입고량: ${item['평균입고량'] || 'N/A'}<br>
+                            재고: ${item['재고'] || 'N/A'}<br>
+                            판매방법: ${item['판매방법'] || 'N/A'}<br>
+                            보충주기: ${item['보충주기'] || 'N/A'}<br>
+                            중량: ${item['중량'] || 'N/A'}<br>
+                        `;
+                        content += `
+                            이미지: <span class="image-url" data-url="${item['상품이미지'] || ''}">url</span> /
+                            최근 입고내역: <span class="inventory-history" data-history="${item['입고일&수량'] || ''}">더보기</span><br>
+                        `;
+                    });
+                }
+            }
+            return content;
+        }
+
+        //이미지 팝업
+        function showImagePopup(event) {
+            const url = event.target.getAttribute('data-url');
+            if (url) {
+                const imagePopup = document.getElementById('imagePopup');
+                imagePopup.innerHTML = `<img src="${url}" alt="상품이미지">`;
+                imagePopup.style.display = 'block';
+                // 이미지 팝업 위치 조정
+                adjustPopupPosition(imagePopup, event.pageX + 10, event.pageY + 10);
+            }
+        }
+
+        // 입고 내역 팝업
+        function showInventoryHistoryPopup(event) {
+            const historyData = event.target.getAttribute('data-history');
+            if (historyData) {
+                const historyPopup = document.getElementById('inventoryHistoryPopup');
+                const formattedHistory = historyData
+                    .split('],[')  // ],[ 로 먼저 분리
+                    .map(entry => entry.replace(/[\[\]]/g, '').trim()) // 각 항목의 [ ] 제거
+                    .map(entry => {
+                        const [date, quantity] = entry.split('/').map(s => s.trim());
+                        return `${date}: ${quantity}EA`;
+                    })
+                    .join('\n');
+        
+                historyPopup.innerHTML = `
+                    <h4>최근 입고내역</h4>
+                    <pre style="margin: 0; line-height: 1.5;">${formattedHistory}</pre>
+                `;
+                historyPopup.style.display = 'block';
+                adjustPopupPosition(historyPopup, event.pageX + 10, event.pageY + 10);
+            }
+        }
+        
+        // 입고 내역 팝업 숨기기
+        function hideInventoryHistoryPopup() {
+            document.getElementById('inventoryHistoryPopup').style.display = 'none';
+        }
+
+        // 이미지 URL에서 마우스가 벗어나면 이미지 팝업 숨김
+        function hideImagePopup() {
+            document.getElementById('imagePopup').style.display = 'none';
+        }
+
+
+        // 필터 적용 함수 (새로 추가)
+        function applyFilter(items) {
+            const filterValue = document.getElementById("filterSelect").value;
+            if (filterValue === "all") return items;
+
+            return items.filter(item => {
+                const cycle = item['입고주기'] ? parseFloat(item['입고주기']) : null;
+                if (cycle === null) return false;
+                switch (filterValue) {
+                    case "supershort": return cycle > 0 && cycle <= 3.0;
+                    case "short": return cycle > 3.0 && cycle <= 7.0;
+                    case "week": return cycle > 7.0 && cycle <= 14.0;
+                    case "month": return cycle > 14.0 && cycle <= 30.0;
+                    case "long": return cycle > 30.0;
+                    default: return true;
+                }
+            });
+        }
+
+        function handleRestockCycleFilterChange() {
+            activeRestockCycleFilter = document.getElementById("restockCycleSelect").value;
+            applyFilters();
+        }
+
+        function handleAvgSalesFilterChange() {
+            activeAvgSalesFilter = document.getElementById("avgSalesSelect").value;
+            applyFilters();
+        }
+
+        function handleSalesMethodFilterChange() {
+            activeSalesMethodFilter = document.getElementById("salesMethodSelect").value;
+            applyFilters();
+        }
+
+        function handleSupplyCycleFilterChange() {
+            activeSupplyCycleFilter = document.getElementById("supplyCycleSelect").value;
+            applyFilters();
+        }
+
+        function handleWeightFilterChange() {
+            activeWeightFilter = document.getElementById("weightSelect").value;
+            applyFilters();
+        }
+
+        function handleKeepTypeFilterChange() {
+            activeKeepTypeFilter = document.getElementById("keepTypeSelect").value;
+            applyFilters();
+        }
+
+        function applyFilters() {
+            if ((activeRestockCycleFilter === 'all' && activeAvgSalesFilter === 'all') ||
+                (activeRestockCycleFilter === 'all' && activeSalesMethodFilter === 'all') ||
+                (activeRestockCycleFilter === 'all' && activeSupplyCycleFilter === 'all') ||
+                (activeRestockCycleFilter === 'all' && activeWeightFilter === 'all') ||
+                (activeRestockCycleFilter === 'all' && activeKeepTypeFilter === 'all') ||
+                (activeAvgSalesFilter === 'all' && activeSalesMethodFilter === 'all') ||
+                (activeAvgSalesFilter === 'all' && activeSupplyCycleFilter === 'all') ||
+                (activeAvgSalesFilter === 'all' && activeWeightFilter === 'all') ||
+                (activeAvgSalesFilter === 'all' && activeKeepTypeFilter === 'all') ||
+                (activeSalesMethodFilter === 'all' && activeSupplyCycleFilter === 'all') ||
+                (activeSalesMethodFilter === 'all' && activeWeightFilter === 'all') ||
+                (activeSalesMethodFilter === 'all' && activeKeepTypeFilter === 'all') ||
+                (activeSupplyCycleFilter === 'all' && activeWeightFilter === 'all') ||
+                (activeSupplyCycleFilter === 'all' && activeKeepTypeFilter === 'all') ||
+                (activeWeightFilter === 'all' && activeKeepTypeFilter === 'all')) {
+                alert("전체 필터는 한가지만 선택 가능합니다.");
+                document.getElementById("restockCycleSelect").value = 'none';
+                document.getElementById("avgSalesSelect").value = 'none';
+                document.getElementById("salesMethodSelect").value = 'none';
+                document.getElementById("supplyCycleSelect").value = 'none';
+                document.getElementById("weightSelect").value = 'none';
+                document.getElementById("keepTypeSelect").value = 'none';
+                activeRestockCycleFilter = 'none';
+                activeAvgSalesFilter = 'none';
+                activeSalesMethodFilter = 'none';
+                activeSupplyCycleFilter = 'none';
+                activeWeightFilter = 'none';
+                activeKeepTypeFilter = 'none';
+            }
+
+            const svgDoc = document.querySelector("#svgContainer svg");
+            if (!svgDoc) return;
+
+            svgDoc.querySelectorAll('.cell').forEach(cell => {
+                if (cell.inventoryData) {
+                    updateElementColor(cell, cell.inventoryData);
+                } else {
+                    cell.style.fill = '';
+                }
+            });
+
+            updateResultCount();
+        }
+
+        function resetCellColor(cell) {
+            if (cell.inventoryData && cell.inventoryData.length > 0) {
+                cell.style.fill = 'gray';
+            } else {
+                cell.style.fill = 'white';
+            }
+        }
+
+        function filterInventoryData(items) {
+            if (!items || !Array.isArray(items)) {
+                return [];
+            }
+
+            return items.filter(item => {
+                let passRestockCycle = activeRestockCycleFilter === 'none' || activeRestockCycleFilter === 'all';
+                let passAvgSales = activeAvgSalesFilter === 'none' || activeAvgSalesFilter === 'all';
+                let passSalesMethod = activeSalesMethodFilter === 'none' || activeSalesMethodFilter === 'all';
+                let passSupplyCycle = activeSupplyCycleFilter === 'none' || activeSupplyCycleFilter === 'all';
+                let passWeight = activeWeightFilter === 'none' || activeWeightFilter === 'all';
+                let passKeepType = activeKeepTypeFilter === 'none' || activeKeepTypeFilter === 'all';
+
+                if (activeRestockCycleFilter && activeRestockCycleFilter !== 'none' && activeRestockCycleFilter !== 'all') {
+                    const cycle = item['입고주기'] ? parseFloat(item['입고주기']) : null;
+                    if (cycle !== null) {
+                        switch (activeRestockCycleFilter) {
+                            case "supershort": passRestockCycle = cycle <= 3.0; break;
+                            case "short": passRestockCycle = cycle > 3.0 && cycle <= 7.0; break;
+                            case "week": passRestockCycle = cycle > 7.0 && cycle <= 14.0; break;
+                            case "month": passRestockCycle = cycle > 14.0 && cycle <= 30.0; break;
+                            case "long": passRestockCycle = cycle > 30.0; break;
+                        }
+                    }
+                }
+
+                if (activeAvgSalesFilter && activeAvgSalesFilter !== 'none' && activeAvgSalesFilter !== 'all') {
+                    const sales = item['평균판매량'] ? parseFloat(item['평균판매량']) : null;
+                    if (sales !== null) {
+                        switch (activeAvgSalesFilter) {
+                            case "low": passAvgSales = sales <= 10.0; break;
+                            case "medium": passAvgSales = sales > 10.0 && sales <= 100.0; break;
+                            case "high": passAvgSales = sales > 100.0; break;
+                        }
+                    }       
+                }
+
+                if (activeSupplyCycleFilter && activeSupplyCycleFilter !== 'none' && activeSupplyCycleFilter !== 'all') {
+                    const supplycycle = item['보충주기'] ? parseFloat(item['보충주기']) : null;
+                    if (supplycycle !== null) {
+                        switch (activeSupplyCycleFilter) {
+                            case "not": passSupplyCycle = supplycycle === 0.0; break;
+                            case "less1day": passSupplyCycle = supplycycle !== 0.0 && supplycycle < 1.0; break;
+                            case "2day": passSupplyCycle = supplycycle >= 1.0 && supplycycle < 2.0; break;
+                            case "more2day": passSupplyCycle = supplycycle >= 2.0; break;
+                        }
+                    }       
+                }
+
+                if (activeWeightFilter && activeWeightFilter !== 'none' && activeWeightFilter !== 'all') {
+                    const weight = item['중량'] ? parseFloat(item['중량']) : null;
+                    if (weight !== null) {
+                        switch (activeWeightFilter) {
+                            case "less500": passWeight = weight < 500; break;
+                            case "500n1kg": passWeight = weight >= 500 && weight < 1000; break;
+                            case "more1kg": passWeight = weight >= 1000; break;
+                        }
+                    }       
+                }
+
+                if (activeSalesMethodFilter && activeSalesMethodFilter !== 'none' && activeSalesMethodFilter !== 'all') {
+                    const method = item['판매방법'];
+                    switch (activeSalesMethodFilter) {
+                        case "pre": passSalesMethod = method === '선판매'; break;
+                        case "post": passSalesMethod = method === '후판매'; break;
+                    }
+                }
+
+                if (activeKeepTypeFilter && activeKeepTypeFilter !== 'none' && activeKeepTypeFilter !== 'all') {
+                    const keepType = item['보관유형'];
+                    switch (activeKeepTypeFilter) {
+                        case "room": passKeepType = keepType === '상온'; break;
+                        case "cold": passKeepType = keepType === '냉장'; break;
+                        case "frozen": passKeepType = keepType === '냉동'; break;
+                    }
+                }
+
+                return passRestockCycle && passAvgSales && passSalesMethod && passSupplyCycle && passWeight && passKeepType;
+            });
+        }
+
+        // SVG 요소와 재고 데이터를 연결하는 함수
+        function linkInventoryToSVG() {
+            const svgContainer = document.getElementById('svgContainer');
+            const svg = svgContainer.querySelector('svg');
+            if (!svg) return;
+            
+            const groupedData = groupInventoryData(inventoryData);
+            
+            svg.querySelectorAll('.cell').forEach(cell => {
+                const location = cell.getAttribute('data-value');
+                if (groupedData[location]) {
+                    cell.inventoryData = groupedData[location];
+                    cell.addEventListener('mouseover', handleMouseOver);
+                    cell.addEventListener('mouseout', handleMouseOut);
+                    cell.addEventListener('click', handleCellClick);
+                }
+            });
+        }
+
+        function initializeCellColors() {
+            const svg = document.querySelector('#svgContainer svg');
+            if (!svg) return;
+
+            svg.querySelectorAll('.cell').forEach(cell => {
+                if (cell.inventoryData && cell.inventoryData.length > 0) {
+                    cell.style.fill = 'gray';
+                } else {
+                    cell.style.fill = 'white';
+                }
+            });
+        }
+
+        // 재고 데이터를 위치별로 그룹화하는 함수
+        function groupInventoryData(data) {
+            return data.reduce((acc, item) => {
+                const location = item['지번명'] || item['지번'];
+                if (!acc[location]) {
+                    acc[location] = [];
+                }
+                acc[location].push(item);
+                return acc;
+            }, {});
+        }
+
+        function updateElementColor(element, items) {
+            if (!items || items.length === 0) {
+                element.style.fill = 'white';
+                return;
+            }
+            let filteredItems;
+            if (searchResults.length > 0) {
+                filteredItems = element.searchResults ? filterInventoryData(element.searchResults) : [];
+            } else {
+                filteredItems = filterInventoryData(items);
+            }
+
+            if (filteredItems.length === 0) {
+                element.style.fill = 'white';
+                return;
+            }
+
+            const activeFilters = [activeRestockCycleFilter, activeAvgSalesFilter, activeSalesMethodFilter, activeSupplyCycleFilter, activeWeightFilter, activeKeepTypeFilter]
+                .filter(filter => filter !== 'none');
+
+            // 검색 결과가 있고 필터가 적용되지 않은 경우
+            if (searchResults.length > 0 && activeFilters.length === 0) {
+                element.style.fill = searchResults.includes(element) ? 'gray' : 'white';
+                return;
+            }    
+
+            // 필터가 적용된 경우 (검색 결과가 있든 없든)
+            if (activeFilters.length > 0) {
+                if (activeFilters.includes('all')) {
+                    let colors = [];
+                    if (activeRestockCycleFilter === 'all') {
+                        const cycles = filteredItems.map(item => item['입고주기'] ? parseFloat(item['입고주기']) : -1).filter(cycle => cycle !== -1);
+                        colors = colors.concat(getCycleColors(cycles));
+                    }
+                    if (activeAvgSalesFilter === 'all') {
+                        const sales = filteredItems.map(item => item['평균판매량'] ? parseFloat(item['평균판매량']) : -1).filter(sale => sale !== -1);
+                        colors = colors.concat(getSalesColors(sales));
+                    }
+                    if (activeSupplyCycleFilter === 'all') {
+                        const supplycycles = filteredItems.map(item => item['보충주기'] ? parseFloat(item['보충주기']) : -1).filter(supplycycle => supplycycle !== -1);
+                        colors = colors.concat(getSupplyCycleColors(supplycycles));
+                    }
+                    if (activeWeightFilter === 'all') {
+                        const weights = filteredItems.map(item => item['중량'] ? parseFloat(item['중량']) : -1).filter(weight => weight !== -1);
+                        colors = colors.concat(getWeightColors(weights));
+                    }
+                    if (activeKeepTypeFilter === 'all') {
+                        const keepTypes = filteredItems.map(item => item['보관유형']);
+                        if (keepTypes.includes('상온')) colors.push("yellow");
+                        if (keepTypes.includes('냉장')) colors.push("green");
+                        if (keepTypes.includes('냉동')) colors.push("blue");
+                    }
+                    if (activeSalesMethodFilter === 'all') {
+                        const methods = filteredItems.map(item => item['판매방법']);
+                        if (methods.includes('선판매')) colors.push("red");
+                        if (methods.includes('후판매')) colors.push("blue");
+                    }
+                    createPatternFill(element, [...new Set(colors)]);
+                } else {
+                    let color = 'gray';
+                    if (activeRestockCycleFilter !== 'none') {
+                        const cycles = filteredItems.map(item => item['입고주기'] ? parseFloat(item['입고주기']) : -1).filter(cycle => cycle !== -1);
+                        if (cycles.length > 0) {
+                            color = getCycleColor(Math.max(...cycles));
+                        }
+                    } else if (activeAvgSalesFilter !== 'none') {
+                        const sales = filteredItems.map(item => item['평균판매량'] ? parseFloat(item['평균판매량']) : -1).filter(sale => sale !== -1);
+                        if (sales.length > 0) {
+                            color = getSalesColor(Math.max(...sales));
+                        }
+                    } else if (activeSupplyCycleFilter !== 'none') {
+                        const supplycycles = filteredItems.map(item => item['보충주기'] ? parseFloat(item['보충주기']) : -1).filter(supplycycle => supplycycle !== -1);
+                        if (supplycycles.length > 0) {
+                            color = getSupplyCycleColor(Math.max(...supplycycles));
+                        }
+                    } else if (activeWeightFilter !== 'none') {
+                        const weights = filteredItems.map(item => item['중량'] ? parseFloat(item['중량']) : -1).filter(weight => weight !== -1);
+                        if (weights.length > 0) {
+                            color = getWeightColor(Math.max(...weights));
+                        }    
+                    } else if (activeKeepTypeFilter !== 'none') {
+                        const keepTypes = filteredItems.map(item => item['보관유형']);
+                        if (keepTypes.includes('상온')) {
+                            color = "yellow";
+                        } else if (keepTypes.includes('냉장')) {
+                            color = "green";
+                        } else if (keepTypes.includes('냉동')) {
+                            color = "blue";
+                        }
+                    } else if (activeSalesMethodFilter !== 'none') {
+                        const methods = filteredItems.map(item => item['판매방법']);
+                        if (methods.includes('선판매')) {
+                            color = "red";
+                        } else if (methods.includes('후판매')) {
+                            color = "blue";
+                        }
+                    }
+                    element.style.fill = color;
+                }
+            } else {
+                element.style.fill = 'gray';
+            }
+        }
+
+        function getCycleColor(cycle) {
+            if (cycle <= 3.0) return "blue";
+            if (cycle <= 7.0) return "green";
+            if (cycle <= 14.0) return "orange";
+            if (cycle <= 30.0) return "yellow";
+            return "red";
+        }
+
+        function getSupplyCycleColor(supplycycle) {
+            if (supplycycle === 0) return "gray";
+            if (supplycycle < 1.0) return "green";
+            if (supplycycle <= 2.0) return "yellow";
+            return "red";
+        }
+
+        function getSalesColor(sale) {
+            if (sale <= 10.0) return "red";
+            if (sale <= 100.0) return "yellow";
+            return "green";
+        }
+
+        function getWeightColor(weight) {
+            if (weight < 500) return "red";
+            if (weight < 1000) return "yellow";
+            return "green";
+        }   
+
+        function getCycleColors(cycles) {
+            return [...new Set(cycles.map(getCycleColor))];
+        }
+
+        function getSalesColors(sales) {
+            return [...new Set(sales.map(getSalesColor))];
+        }
+
+        function getSupplyCycleColors(supplycycles) {
+            return [...new Set(supplycycles.map(getSupplyCycleColor))];
+        }
+
+        function getWeightColors(weights) {
+            return [...new Set(weights.map(getWeightColor))];
+        }
+
+        function createPatternFill(element, colors) {
+            const svgns = "http://www.w3.org/2000/svg";
+            const patternId = `pattern-${colors.join('-')}`;
+            let pattern = document.getElementById(patternId);
+            if (!pattern) {
+                pattern = document.createElementNS(svgns, "pattern");
+                pattern.setAttribute("id", patternId);
+                pattern.setAttribute("patternUnits", "userSpaceOnUse");
+                pattern.setAttribute("width", colors.length * 5);
+                pattern.setAttribute("height", "10");
+                colors.forEach((color, index) => {
+                    const rect = document.createElementNS(svgns, "rect");
+                    rect.setAttribute("x", index * 5);
+                    rect.setAttribute("width", "5");
+                    rect.setAttribute("height", "10");
+                    rect.setAttribute("fill", color);
+                    pattern.appendChild(rect);
+                });
+                const svg = document.querySelector("#svgContainer svg");
+                const defs = svg.querySelector("defs") || svg.insertBefore(document.createElementNS(svgns, "defs"), svg.firstChild);
+                defs.appendChild(pattern);
+            }
+            element.style.fill = `url(#${patternId})`;
+        }
+
+        // 존 구분 함수
+        function getZone(location) {
+            if (location === '2F-H1-1-1') {
+                return 'H1';
+            }
+            const match = location.match(/-([A-Z]{1,2}\d{0,2})/);
+            if (match) {
+                const zoneCode = match[1];
+                if (zoneCode.startsWith('I')) {
+                    // I0과 I1을 별도의 존으로 처리
+                    return zoneCode.length > 1 ? zoneCode.substring(0, 2) : zoneCode;
+                } else if (zoneCode === 'D98' || zoneCode === 'D99') {
+                    // D98과 D99를 별도의 존으로 처리
+                    return zoneCode;
+                } else if (zoneCode.startsWith('D')) {
+                    // 나머지 D로 시작하는 경우는 D로 묶음
+                    return 'D';
+                } else if (zoneCode.startsWith('H0')) {
+                    // H0로 시작하는 경우 H0으로 묶음
+                    return 'H0';
+                } else if (zoneCode.startsWith('H')) {
+                    // H로 시작하는 모든 경우(H1 포함)를 H로 묶음
+                    return 'H';
+                } else if (zoneCode === 'E99') {
+                    // E99를 별도의 존으로 처리
+                    return 'E99';
+                } else if (zoneCode.startsWith('E')) {
+                    // 나머지 E로 시작하는 경우는 E로 묶음
+                    return 'E';   
+                } else if (zoneCode.startsWith('Z')) {
+                    // 나머지 E로 시작하는 경우는 E로 묶음
+                    return 'Z';      
+                } else {
+                    // 그 외의 경우 알파벳 부분만 반환 (한 글자 또는 두 글자)
+                    return zoneCode.replace(/\d+$/, '');
+                }
+            }
+            return null;
+        }
+
+        // 존 경계 추가 함수
+        function addZoneBoundaries() {
+            const svg = document.querySelector('#svgContainer svg');
+            if (!svg) return;
+            const cells = svg.querySelectorAll('.cell');
+            const zones = new Map();
+            // 각 셀을 존별로 그룹화
+            cells.forEach(cell => {
+                const location = cell.getAttribute('data-value');
+                const zone = getZone(location);
+                if (zone) {
+                    if (!zones.has(zone)) {
+                        zones.set(zone, []);
+                    }
+                    zones.get(zone).push(cell);
+                }
+            });
+
+            // 각 존의 경계 계산 및 추가
+            zones.forEach((zoneCells, zoneName) => {
+                const boundary = calculateZoneBoundary(zoneCells);
+                addBoundaryToSVG(svg, boundary, zoneName);
+            });
+        }
+
+        // 존 경계 계산 함수
+        function calculateZoneBoundary(cells) {
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+            cells.forEach(cell => {
+                const rect = cell.getBBox();
+                minX = Math.min(minX, rect.x);
+                minY = Math.min(minY, rect.y);
+                maxX = Math.max(maxX, rect.x + rect.width);
+                maxY = Math.max(maxY, rect.y + rect.height);
+            });
+            // 경계점 생성
+            const boundary = [
+                {x: minX, y: minY},
+                {x: maxX, y: minY},
+                {x: maxX, y: maxY},
+                {x: minX, y: maxY}
+            ];
+            return {
+                points: boundary,
+                x: minX,
+                y: minY,
+                width: maxX - minX,
+                height: maxY - minY
+            };
+        }
+
+        // SVG에 경계 추가 함수
+        function addBoundaryToSVG(svg, boundary, zoneName) {
+            // AC 존에 대해서는 구분선을 표시하지 않음
+            if (zoneName === "AC") {
+                return; // 함수 실행 중단
+            }
+            
+            // 경계선 그리기
+            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            let d = `M${boundary.points[0].x},${boundary.points[0].y}`;
+            for (let i = 1; i < boundary.points.length; i++) {
+                d += `L${boundary.points[i].x},${boundary.points[i].y}`;
+            }
+            d += "Z"; // 경로 닫기
+            path.setAttribute("d", d);
+            path.setAttribute("fill", "none");
+            path.setAttribute("stroke", "brown");
+            path.setAttribute("stroke-width", "2");
+            path.setAttribute("class", "zone-boundary");
+            svg.appendChild(path);
+            // 존 레이블 추가
+            const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            text.setAttribute("x", boundary.x + boundary.width / 2);
+            text.setAttribute("y", boundary.y - 5);
+            text.setAttribute("text-anchor", "middle");
+            text.setAttribute("fill", "black");
+            text.setAttribute("font-size", "14");
+            text.setAttribute("font-weight", "bold");
+            text.textContent = zoneName;
+            svg.appendChild(text);
+            // 텍스트 배경 추가 
+            const textBBox = text.getBBox();
+            const background = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+            background.setAttribute("x", textBBox.x - 2);
+            background.setAttribute("y", textBBox.y - 2);
+            background.setAttribute("width", textBBox.width + 3);
+            background.setAttribute("height", textBBox.height + 3);
+            background.setAttribute("fill", "white");
+            background.setAttribute("fill-opacity", "0.7");
+            svg.insertBefore(background, text);
+        }
+
+        // SVG 로드 후 존 경계 추가
+        function loadSVGWithZones(sheet) {
+            fetch(`/get_svg/${sheet}`)
+                .then(response => response.text())
+                .then(svgContent => {
+                    const parser = new DOMParser();
+                    const svgDoc = parser.parseFromString(svgContent, "image/svg+xml");
+                    const svgElement = svgDoc.documentElement;
+                    const svgContainer = document.getElementById('svgContainer');
+                    svgContainer.innerHTML = '';
+                    svgContainer.style.paddingLeft = '250px';
+
+                    // SVG 요소에 초기 스케일 적용
+                    currentScale = getInitialScale(sheet);
+                    svgElement.style.transform = `scale(${currentScale})`;
+                    svgElement.style.transformOrigin = '0 0';
+
+                    svgContainer.appendChild(svgElement);
+                    addZoneBoundaries();
+                    setupEventListeners();
+                    loadInventoryData().then(() => {
+                        linkInventoryToSVG();
+                        initializeCellColors();
+                    });
+                });
+        }
+
+        function logout() {
+            if (confirm("로그아웃 하시겠습니까?")) {
+                window.location.href = "/logout";
+                alert("로그아웃 되었습니다.");
+            }
+        }
+
+        // Summary 대시보드 로드 함수
+        function loadSummaryDashboard() {
+            fetch('/api/zone_statistics')
+                .then(response => response.json())
+                .then(data => {
+                    displayDashboard(data.statistics, data.lastUpdateTime);
+                })
+                .catch(error => {
+                    console.error('대시보드 데이터 로드 오류:', error);
+                    document.getElementById('dashboardContent').innerHTML = 
+                        '<p>대시보드 데이터를 불러오는 중 오류가 발생했습니다.</p>';
+                });
+        }
+
+        // 대시보드 표시 함수
+        function displayDashboard(statistics, updateTime) {
+            const dashboardContent = document.getElementById('dashboardContent');
+            // 존 정렬 순서 정의
+            const zoneOrder = [
+                'BULK 지번(A/M/I)',
+                '2FBA', '2FBB', '2FC', '2FD', '2FEA', '2FE', '2FK', '2FF', '2FL', '2FG', '2FO', '2FP', '2FR',
+                '특수지번(H/J/S)'
+            ];
+            const zones = Object.keys(statistics).sort((a, b) => {
+                const indexA = zoneOrder.indexOf(a);
+                const indexB = zoneOrder.indexOf(b);
+                if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+                if (indexA !== -1) return -1;
+                if (indexB !== -1) return 1;
+                return a.localeCompare(b);
+            });
+            
+            // 전체 존 평균 계산
+            const summaryStats = calculateSummaryStatistics(statistics, zones);
+            
+            let html = `
+                <div class="summary-charts-section">
+                    <h2>전체 존 평균 지표</h2>
+                    <div class="summary-charts-grid">
+                        <div class="summary-chart-container">
+                            <canvas id="summary-chart-sales"></canvas>
+                        </div>
+                        <div class="summary-chart-container">
+                            <canvas id="summary-chart-restock"></canvas>
+                        </div>
+                        <div class="summary-chart-container">
+                            <canvas id="summary-chart-sku-unit"></canvas>
+                        </div>
+                        <div class="summary-chart-container">
+                            <canvas id="summary-chart-turnover"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="dashboard-grid">
+            `;
+            
+            zones.forEach(zone => {
+                const stats = statistics[zone];
+                html += `
+                    <div class="zone-card">
+                        <h3>${stats.zone}</h3>
+                        <div class="zone-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">SKU:</span>
+                                <span class="stat-value">${stats.total_products}</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">평균 판매량:</span>
+                                <span class="stat-value">${stats.avg_sales.toFixed(2)}</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">평균 입고주기:</span>
+                                <span class="stat-value">${stats.avg_restock_cycle.toFixed(2)}</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">평균 보충주기:</span>
+                                <span class="stat-value">${stats.avg_supply_cycle.toFixed(2)}</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">UNIT:</span>
+                                <span class="stat-value">${stats.total_stock.toFixed(0)}</span>
+                            </div>
+                        </div>
+                        <div class="zone-charts">
+                            <canvas id="chart-method-${stats.zone}" class="chart-canvas"></canvas>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            dashboardContent.innerHTML = html;
+            
+            // 전체 존 평균 차트 생성
+            createSummaryCharts(summaryStats, zones, statistics);
+            
+            // 존별 차트 생성
+            zones.forEach(zone => {
+                const stats = statistics[zone];
+                createZoneCharts(zone, stats);
+            });
+        }
+
+        // 전체 존 평균 통계 계산 함수
+        function calculateSummaryStatistics(statistics, zones) {
+            let totalAvgSales = 0;
+            let totalAvgRestockCycle = 0;
+            let totalSku = 0;
+            let totalUnit = 0;
+            let totalAvgTurnoverDays = 0;
+            let validZones = 0;
+            
+            zones.forEach(zone => {
+                const stats = statistics[zone];
+                if (stats) {
+                    totalAvgSales += stats.avg_sales || 0;
+                    totalAvgRestockCycle += stats.avg_restock_cycle || 0;
+                    totalSku += stats.total_products || 0;
+                    totalUnit += stats.total_stock || 0;
+                    totalAvgTurnoverDays += stats.avg_turnover_days || 0;
+                    validZones++;
+                }
+            });
+            
+            return {
+                avgSales: validZones > 0 ? totalAvgSales / validZones : 0,
+                avgRestockCycle: validZones > 0 ? totalAvgRestockCycle / validZones : 0,
+                totalSku: totalSku,
+                totalUnit: totalUnit,
+                avgSku: validZones > 0 ? totalSku / validZones : 0,
+                avgUnit: validZones > 0 ? totalUnit / validZones : 0,
+                avgTurnoverDays: validZones > 0 ? totalAvgTurnoverDays / validZones : 0
+            };
+        }
+
+        // 전체 존 평균 차트 생성 함수
+        function createSummaryCharts(summaryStats, zones, statistics) {
+            // 평균 판매량 차트 (존별 비교)
+            const salesCtx = document.getElementById('summary-chart-sales');
+            if (salesCtx) {
+                const zoneLabels = zones;
+                const salesData = zones.map(zone => statistics[zone]?.avg_sales || 0);
+                
+                new Chart(salesCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: zoneLabels,
+                        datasets: [{
+                            label: '평균 판매량',
+                            data: salesData,
+                            backgroundColor: '#4CAF50'
+                        }, {
+                            label: '전체 평균',
+                            type: 'line',
+                            data: new Array(zoneLabels.length).fill(summaryStats.avgSales),
+                            borderColor: '#FF0000',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            fill: false,
+                            pointRadius: 0,
+                            pointHoverRadius: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: `평균 판매량 (전체 평균: ${summaryStats.avgSales.toFixed(2)})`,
+                                font: { size: 14 }
+                            },
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            },
+                            x: {
+                                ticks: {
+                                    maxRotation: 45,
+                                    minRotation: 45,
+                                    font: { size: 10 }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // 평균 입고주기 차트 (존별 비교)
+            const restockCtx = document.getElementById('summary-chart-restock');
+            if (restockCtx) {
+                const zoneLabels = zones;
+                const restockData = zones.map(zone => statistics[zone]?.avg_restock_cycle || 0);
+                
+                new Chart(restockCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: zoneLabels,
+                        datasets: [{
+                            label: '평균 입고주기',
+                            data: restockData,
+                            backgroundColor: '#2196F3'
+                        }, {
+                            label: '전체 평균',
+                            type: 'line',
+                            data: new Array(zoneLabels.length).fill(summaryStats.avgRestockCycle),
+                            borderColor: '#FF0000',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            fill: false,
+                            pointRadius: 0,
+                            pointHoverRadius: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: `평균 입고주기 (전체 평균: ${summaryStats.avgRestockCycle.toFixed(2)})`,
+                                font: { size: 14 }
+                            },
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            },
+                            x: {
+                                ticks: {
+                                    maxRotation: 45,
+                                    minRotation: 45,
+                                    font: { size: 10 }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // SKU, UNIT 차트
+            const skuUnitCtx = document.getElementById('summary-chart-sku-unit');
+            if (skuUnitCtx) {
+                const zoneLabels = zones;
+                const skuData = zones.map(zone => statistics[zone]?.total_products || 0);
+                const unitData = zones.map(zone => statistics[zone]?.total_stock || 0);
+                
+                new Chart(skuUnitCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: zoneLabels,
+                        datasets: [{
+                            label: 'SKU',
+                            data: skuData,
+                            backgroundColor: '#FF9800',
+                            yAxisID: 'y'
+                        }, {
+                            label: 'UNIT',
+                            data: unitData,
+                            backgroundColor: '#9C27B0',
+                            yAxisID: 'y1'
+                        }, {
+                            label: 'SKU 평균',
+                            type: 'line',
+                            data: new Array(zoneLabels.length).fill(summaryStats.avgSku),
+                            borderColor: '#FF0000',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            fill: false,
+                            pointRadius: 0,
+                            pointHoverRadius: 0,
+                            yAxisID: 'y'
+                        }, {
+                            label: 'UNIT 평균',
+                            type: 'line',
+                            data: new Array(zoneLabels.length).fill(summaryStats.avgUnit),
+                            borderColor: '#FF6B6B',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            fill: false,
+                            pointRadius: 0,
+                            pointHoverRadius: 0,
+                            yAxisID: 'y1'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: `SKU/UNIT (전체 SKU: ${summaryStats.totalSku}, 전체 UNIT: ${summaryStats.totalUnit.toFixed(0)})`,
+                                font: { size: 14 }
+                            },
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                type: 'linear',
+                                position: 'left',
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'SKU'
+                                }
+                            },
+                            y1: {
+                                type: 'linear',
+                                position: 'right',
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'UNIT'
+                                },
+                                grid: {
+                                    drawOnChartArea: false
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    maxRotation: 45,
+                                    minRotation: 45,
+                                    font: { size: 10 }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // 평균 회전일 차트 (존별 비교)
+            const turnoverCtx = document.getElementById('summary-chart-turnover');
+            if (turnoverCtx) {
+                const zoneLabels = zones;
+                const turnoverData = zones.map(zone => statistics[zone]?.avg_turnover_days || 0);
+                
+                new Chart(turnoverCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: zoneLabels,
+                        datasets: [{
+                            label: '평균 회전일',
+                            data: turnoverData,
+                            backgroundColor: '#F44336'
+                        }, {
+                            label: '전체 평균',
+                            type: 'line',
+                            data: new Array(zoneLabels.length).fill(summaryStats.avgTurnoverDays),
+                            borderColor: '#FF0000',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            fill: false,
+                            pointRadius: 0,
+                            pointHoverRadius: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: `평균 회전일 (전체 평균: ${summaryStats.avgTurnoverDays.toFixed(2)})`,
+                                font: { size: 14 }
+                            },
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            },
+                            x: {
+                                ticks: {
+                                    maxRotation: 45,
+                                    minRotation: 45,
+                                    font: { size: 10 }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // 존별 차트 생성 함수
+        function createZoneCharts(zone, stats) {
+            // 판매방법 분포 차트
+            const methodCtx = document.getElementById(`chart-method-${zone}`);
+            if (methodCtx && (stats.sales_method_distribution['선판매'] > 0 || stats.sales_method_distribution['후판매'] > 0)) {
+                new Chart(methodCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['선판매', '후판매'],
+                        datasets: [{
+                            data: [
+                                stats.sales_method_distribution['선판매'],
+                                stats.sales_method_distribution['후판매']
+                            ],
+                            backgroundColor: ['#F44336', '#2196F3']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '판매방법 분포',
+                                font: {
+                                    size: 12
+                                }
+                            },
+                            legend: {
+                                display: true,
+                                position: 'bottom',
+                                labels: {
+                                    font: {
+                                        size: 10
+                                    },
+                                    boxWidth: 10
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // 초기 설정
+        document.addEventListener('DOMContentLoaded', () => {
+            const style = document.createElement('style');
+            style.textContent = `
+                #svgContainer svg {
+                    transition: transform 0.3s ease;
+                }
+                #summaryDashboard {
+                    overflow-y: auto;
+                    overflow-x: hidden;
+                    background-color: #f5f5f5;
+                    padding-top: 20px;
+                    height: calc(100vh - 200px);
+                    margin-top: 20px;
+                }
+                .dashboard-container {
+                    padding: 20px;
+                    max-width: 1400px;
+                    margin: 0 auto;
+                }
+                .summary-charts-section {
+                    background: white;
+                    border-radius: 8px;
+                    padding: 20px;
+                    margin-bottom: 20px;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                }
+                .summary-charts-section h2 {
+                    margin-top: 0;
+                    margin-bottom: 20px;
+                    color: #333;
+                    font-size: 20px;
+                }
+                .summary-charts-grid {
+                    display: grid;
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 20px;
+                }
+                .summary-chart-container {
+                    height: 300px;
+                    position: relative;
+                }
+                .dashboard-header {
+                    margin-bottom: 20px;
+                    padding: 10px;
+                    background-color: #f5f5f5;
+                    border-radius: 5px;
+                }
+                .dashboard-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                    gap: 12px;
+                }
+                .zone-card {
+                    background: white;
+                    border: 1px solid #ddd;
+                    border-radius: 6px;
+                    padding: 12px;
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                }
+                .zone-card h3 {
+                    margin: 0 0 8px 0;
+                    color: #333;
+                    border-bottom: 2px solid #4CAF50;
+                    padding-bottom: 6px;
+                    font-size: 16px;
+                }
+                .zone-stats {
+                    margin-bottom: 10px;
+                }
+                .stat-item {
+                    display: flex;
+                    justify-content: space-between;
+                    padding: 4px 0;
+                    border-bottom: 1px solid #eee;
+                    font-size: 13px;
+                }
+                .stat-label {
+                    font-weight: 500;
+                    color: #666;
+                    font-size: 13px;
+                }
+                .stat-value {
+                    font-weight: bold;
+                    color: #333;
+                    font-size: 13px;
+                }
+                .zone-charts {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 8px;
+                }
+                .chart-canvas {
+                    height: 120px !important;
+                    max-height: 120px;
+                }
+            `;
+            document.head.appendChild(style);
+            
+            if (currentSheet === 'Summary') {
+                document.getElementById('svgContainer').style.display = 'none';
+                document.getElementById('summaryDashboard').style.display = 'block';
+                loadSummaryDashboard();
+            } else {
+                document.getElementById('svgContainer').style.display = 'block';
+                document.getElementById('summaryDashboard').style.display = 'none';
+                loadSVGWithZones(currentSheet);
+            }
+            document.getElementById('restockCycleSelect').addEventListener('change', handleRestockCycleFilterChange);
+            document.getElementById('avgSalesSelect').addEventListener('change', handleAvgSalesFilterChange);
+            document.getElementById('supplyCycleSelect').addEventListener('change', handleSupplyCycleFilterChange);
+            document.getElementById('salesMethodSelect').addEventListener('change', handleSalesMethodFilterChange);
+            document.getElementById('weightSelect').addEventListener('change', handleWeightFilterChange);
+            document.getElementById('keepTypeSelect').addEventListener('change', handleKeepTypeFilterChange);
+            document.getElementById('searchDropdown').addEventListener('change', () => {
+                document.getElementById('searchInput').value = '';
+                search();
+            });
+            document.querySelector('button[onclick="resetSearch()"]').addEventListener('click', resetSearch);
+            // 탭 이벤트 리스너 추가
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => switchTab(tab.dataset.sheet));
+            });
+            document.querySelector('button[onclick="search()"]').addEventListener('click', search);
+            // 검색 입력 필드에 키 이벤트 리스너 추가
+            document.getElementById('searchInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault(); // 폼 제출 방지
+                    search();
+                }
+            });
+            // 필터 상태 초기화
+            activeRestockCycleFilter = 'none';
+            activeAvgSalesFilter = 'none';
+            activeSalesMethodFilter = 'none';
+            activeSupplyCycleFilter = 'none';
+            activeWeightFilter = 'none';
+            activeKeepTypeFilter = 'none';
+            setupEventListeners();
+            updateResultCount();
+        });
+
+    </script>
+</body>
+</html>
