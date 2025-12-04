@@ -4033,18 +4033,6 @@
   <rect x="1244" y="636" width="6" height="13" data-value="2F-G4-25-3" class="cell 보충"/>
   <rect x="1250" y="636" width="6" height="13" data-value="2F-G4-25-2" class="cell 보충"/>
   <rect x="1256" y="636" width="6" height="13" data-value="2F-G4-25-1" class="cell 보충"/>
-  <rect x="222" y="637" width="9" height="11" data-value="2F-J1-1-1" class="cell 피킹"/>
-  <line x1="222" y1="637" x2="231" y2="648" class="diagonal-line"/>
-  <rect x="231" y="637" width="9" height="11" data-value="2F-J1-1-1" class="cell 피킹"/>
-  <line x1="231" y1="637" x2="240" y2="648" class="diagonal-line"/>
-  <rect x="240" y="637" width="9" height="11" data-value="2F-J1-1-1" class="cell 피킹"/>
-  <line x1="240" y1="637" x2="249" y2="648" class="diagonal-line"/>
-  <rect x="249" y="637" width="9" height="11" data-value="2F-S1-1-1" class="cell 피킹"/>
-  <line x1="249" y1="637" x2="258" y2="648" class="diagonal-line"/>
-  <rect x="258" y="637" width="9" height="11" data-value="2F-S1-1-1" class="cell 피킹"/>
-  <line x1="258" y1="637" x2="267" y2="648" class="diagonal-line"/>
-  <rect x="267" y="637" width="9" height="11" data-value="2F-S1-1-1" class="cell 피킹"/>
-  <line x1="267" y1="637" x2="276" y2="648" class="diagonal-line"/>
   <rect x="382" y="638" width="9" height="11" data-value="2F-BA1-38-1" class="cell 피킹"/>
   <line x1="382" y1="638" x2="391" y2="649" class="diagonal-line"/>
   <rect x="391" y="638" width="9" height="11" data-value="2F-BB1-6-1" class="cell 피킹"/>
