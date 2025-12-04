@@ -150,6 +150,9 @@
   <rect x="387" y="188" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-D4-36-1" class="cell"/>
   <rect x="417" y="188" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-D4-35-1" class="cell"/>
   <rect x="428" y="188" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-D3-13-1" class="cell"/>
+  <rect x="867" y="188" width="15" height="13" fill="white" stroke="black" stroke-width="0.5" data-value="2F-J1-1-1" class="cell"/>
+  <rect x="882" y="188" width="15" height="13" fill="white" stroke="black" stroke-width="0.5" data-value="2F-J1-2-1" class="cell"/>
+  <rect x="897" y="188" width="15" height="13" fill="white" stroke="black" stroke-width="0.5" data-value="2F-J1-3-1" class="cell"/>
   <rect x="291" y="194" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-C1-40-1" class="cell"/>
   <rect x="302" y="194" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-C2-15-1" class="cell"/>
   <rect x="346" y="194" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-C3-36-1" class="cell"/>

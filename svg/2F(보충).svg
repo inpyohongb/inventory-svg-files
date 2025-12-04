@@ -351,6 +351,12 @@
   <line x1="594" y1="205" x2="603" y2="216" class="diagonal-line"/>
   <rect x="603" y="205" width="9" height="11" data-value="2F-K3-17-1" class="cell 피킹"/>
   <line x1="603" y1="205" x2="612" y2="216" class="diagonal-line"/>
+  <rect x="957" y="205" width="15" height="13" data-value="2F-J1-1-1" class="cell 피킹"/>
+  <line x1="957" y1="205" x2="972" y2="218" class="diagonal-line"/>
+  <rect x="972" y="205" width="15" height="13" data-value="2F-J1-2-1" class="cell 피킹"/>
+  <line x1="972" y1="205" x2="987" y2="218" class="diagonal-line"/>
+  <rect x="987" y="205" width="15" height="13" data-value="2F-J1-3-1" class="cell 피킹"/>
+  <line x1="987" y1="205" x2="1002" y2="218" class="diagonal-line"/>
   <rect x="440" y="210" width="9" height="11" data-value="2F-C3-35-1" class="cell 피킹"/>
   <line x1="440" y1="210" x2="449" y2="221" class="diagonal-line"/>
   <rect x="449" y="210" width="9" height="11" data-value="2F-D4-32-1" class="cell 피킹"/>
