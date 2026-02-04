@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="-1 -1 1416 592" preserveAspectRatio="xMidYMid meet">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-1 -1 1720 592" preserveAspectRatio="xMidYMid meet">
   <style>
         .cell { stroke: black; stroke-width: 0.5; fill: white; }
         .피킹 { fill-opacity: 0.3; stroke-dasharray: 2,2; }
@@ -3803,8 +3803,6 @@
   <rect x="825" y="345" width="11" height="11" data-value="2F-R15-14-1" class="cell 보충"/>
   <rect x="836" y="345" width="11" height="11" data-value="2F-R15-15-1" class="cell 보충"/>
   <rect x="847" y="345" width="11" height="11" data-value="2F-R15-16-1" class="cell 보충"/>
-  <rect x="1140" y="355" width="10" height="11" data-value="2F-I0-15-1" class="cell 보충"/>
-  <rect x="1150" y="355" width="10" height="11" data-value="2F-I0-14-1" class="cell 보충"/>
   <rect x="21" y="357" width="5" height="5" data-value="2F-P10-20-403" class="cell 피킹"/>
   <line x1="21" y1="357" x2="26" y2="362" class="diagonal-line"/>
   <rect x="26" y="357" width="5" height="5" data-value="2F-P10-20-402" class="cell 피킹"/>
@@ -3901,8 +3899,6 @@
   <line x1="219" y1="362" x2="224" y2="367" class="diagonal-line"/>
   <rect x="224" y="362" width="5" height="5" data-value="2F-P7-2-203" class="cell 피킹"/>
   <line x1="224" y1="362" x2="229" y2="367" class="diagonal-line"/>
-  <rect x="1140" y="366" width="10" height="11" data-value="2F-I0-15-1" class="cell 보충"/>
-  <rect x="1150" y="366" width="10" height="11" data-value="2F-I0-14-1" class="cell 보충"/>
   <rect x="21" y="367" width="5" height="5" data-value="2F-P10-20-203" class="cell 피킹"/>
   <line x1="21" y1="367" x2="26" y2="372" class="diagonal-line"/>
   <rect x="26" y="367" width="5" height="5" data-value="2F-P10-20-202" class="cell 피킹"/>
@@ -4217,37 +4213,6 @@
   <line x1="389" y1="391" x2="400" y2="402" class="diagonal-line"/>
   <rect x="400" y="391" width="11" height="11" data-value="2F-P2-24-1" class="cell 피킹"/>
   <line x1="400" y1="391" x2="411" y2="402" class="diagonal-line"/>
-  <rect x="989" y="394" width="11" height="11" data-value="2F-I0-32-1" class="cell 보충"/>
-  <rect x="1000" y="394" width="11" height="11" data-value="2F-I0-31-1" class="cell 보충"/>
-  <rect x="1011" y="394" width="11" height="11" data-value="2F-I0-30-1" class="cell 보충"/>
-  <rect x="1022" y="394" width="11" height="11" data-value="2F-I0-29-1" class="cell 보충"/>
-  <rect x="1033" y="394" width="11" height="11" data-value="2F-I0-28-1" class="cell 보충"/>
-  <rect x="1044" y="394" width="11" height="11" data-value="2F-I0-27-1" class="cell 보충"/>
-  <rect x="1055" y="394" width="11" height="11" data-value="2F-I0-26-1" class="cell 보충"/>
-  <rect x="1085" y="394" width="11" height="11" data-value="2F-I0-25-1" class="cell 보충"/>
-  <rect x="1096" y="394" width="9" height="11" data-value="2F-I0-24-1" class="cell 보충"/>
-  <rect x="1105" y="394" width="9" height="11" data-value="2F-I0-23-1" class="cell 보충"/>
-  <rect x="1114" y="394" width="9" height="11" data-value="2F-I0-22-1" class="cell 보충"/>
-  <rect x="1123" y="394" width="9" height="11" data-value="2F-I0-21-1" class="cell 보충"/>
-  <rect x="1132" y="394" width="9" height="11" data-value="2F-I0-20-1" class="cell 보충"/>
-  <rect x="1141" y="394" width="9" height="11" data-value="2F-I0-19-1" class="cell 보충"/>
-  <rect x="1150" y="394" width="11" height="11" data-value="2F-I0-18-1" class="cell 보충"/>
-  <rect x="1161" y="394" width="11" height="11" data-value="2F-I0-17-1" class="cell 보충"/>
-  <rect x="1172" y="394" width="11" height="11" data-value="2F-I0-16-1" class="cell 보충"/>
-  <rect x="1210" y="394" width="10" height="11" data-value="2F-I0-13-1" class="cell 보충"/>
-  <rect x="1220" y="394" width="10" height="11" data-value="2F-I0-12-1" class="cell 보충"/>
-  <rect x="1263" y="394" width="9" height="11" data-value="2F-I0-11-1" class="cell 보충"/>
-  <rect x="1272" y="394" width="9" height="11" data-value="2F-I0-10-1" class="cell 보충"/>
-  <rect x="1281" y="394" width="9" height="11" data-value="2F-I0-9-1" class="cell 보충"/>
-  <rect x="1290" y="394" width="9" height="11" data-value="2F-I0-8-1" class="cell 보충"/>
-  <rect x="1299" y="394" width="9" height="11" data-value="2F-I0-7-1" class="cell 보충"/>
-  <rect x="1308" y="394" width="11" height="11" data-value="2F-I0-6-1" class="cell 보충"/>
-  <rect x="1319" y="394" width="9" height="11" data-value="2F-I0-5-1" class="cell 보충"/>
-  <rect x="1328" y="394" width="9" height="11" data-value="2F-I0-4-1" class="cell 보충"/>
-  <rect x="1374" y="394" width="11" height="11" data-value="2F-I0-3-1" class="cell 보충"/>
-  <rect x="1385" y="394" width="9" height="11" data-value="2F-I0-2-1" class="cell 보충"/>
-  <rect x="1394" y="394" width="10" height="11" data-value="2F-I0-1-1" class="cell 보충"/>
-  <rect x="1404" y="394" width="10" height="11" data-value="2F-I0-0-1" class="cell 보충"/>
   <rect x="21" y="396" width="5" height="5" data-value="2F-P10-16-403" class="cell 피킹"/>
   <line x1="21" y1="396" x2="26" y2="401" class="diagonal-line"/>
   <rect x="26" y="396" width="5" height="5" data-value="2F-P10-16-402" class="cell 피킹"/>
@@ -4350,37 +4315,6 @@
   <line x1="389" y1="402" x2="400" y2="413" class="diagonal-line"/>
   <rect x="400" y="402" width="11" height="11" data-value="2F-P2-22-1" class="cell 피킹"/>
   <line x1="400" y1="402" x2="411" y2="413" class="diagonal-line"/>
-  <rect x="989" y="405" width="11" height="11" data-value="2F-I0-32-1" class="cell 보충"/>
-  <rect x="1000" y="405" width="11" height="11" data-value="2F-I0-31-1" class="cell 보충"/>
-  <rect x="1011" y="405" width="11" height="11" data-value="2F-I0-30-1" class="cell 보충"/>
-  <rect x="1022" y="405" width="11" height="11" data-value="2F-I0-29-1" class="cell 보충"/>
-  <rect x="1033" y="405" width="11" height="11" data-value="2F-I0-28-1" class="cell 보충"/>
-  <rect x="1044" y="405" width="11" height="11" data-value="2F-I0-27-1" class="cell 보충"/>
-  <rect x="1055" y="405" width="11" height="11" data-value="2F-I0-26-1" class="cell 보충"/>
-  <rect x="1085" y="405" width="11" height="11" data-value="2F-I0-25-1" class="cell 보충"/>
-  <rect x="1096" y="405" width="9" height="11" data-value="2F-I0-24-1" class="cell 보충"/>
-  <rect x="1105" y="405" width="9" height="11" data-value="2F-I0-23-1" class="cell 보충"/>
-  <rect x="1114" y="405" width="9" height="11" data-value="2F-I0-22-1" class="cell 보충"/>
-  <rect x="1123" y="405" width="9" height="11" data-value="2F-I0-21-1" class="cell 보충"/>
-  <rect x="1132" y="405" width="9" height="11" data-value="2F-I0-20-1" class="cell 보충"/>
-  <rect x="1141" y="405" width="9" height="11" data-value="2F-I0-19-1" class="cell 보충"/>
-  <rect x="1150" y="405" width="11" height="11" data-value="2F-I0-18-1" class="cell 보충"/>
-  <rect x="1161" y="405" width="11" height="11" data-value="2F-I0-17-1" class="cell 보충"/>
-  <rect x="1172" y="405" width="11" height="11" data-value="2F-I0-16-1" class="cell 보충"/>
-  <rect x="1210" y="405" width="10" height="11" data-value="2F-I0-13-1" class="cell 보충"/>
-  <rect x="1220" y="405" width="10" height="11" data-value="2F-I0-12-1" class="cell 보충"/>
-  <rect x="1263" y="405" width="9" height="11" data-value="2F-I0-11-1" class="cell 보충"/>
-  <rect x="1272" y="405" width="9" height="11" data-value="2F-I0-10-1" class="cell 보충"/>
-  <rect x="1281" y="405" width="9" height="11" data-value="2F-I0-9-1" class="cell 보충"/>
-  <rect x="1290" y="405" width="9" height="11" data-value="2F-I0-8-1" class="cell 보충"/>
-  <rect x="1299" y="405" width="9" height="11" data-value="2F-I0-7-1" class="cell 보충"/>
-  <rect x="1308" y="405" width="11" height="11" data-value="2F-I0-6-1" class="cell 보충"/>
-  <rect x="1319" y="405" width="9" height="11" data-value="2F-I0-5-1" class="cell 보충"/>
-  <rect x="1328" y="405" width="9" height="11" data-value="2F-I0-4-1" class="cell 보충"/>
-  <rect x="1374" y="405" width="11" height="11" data-value="2F-I0-3-1" class="cell 보충"/>
-  <rect x="1385" y="405" width="9" height="11" data-value="2F-I0-2-1" class="cell 보충"/>
-  <rect x="1394" y="405" width="10" height="11" data-value="2F-I0-1-1" class="cell 보충"/>
-  <rect x="1404" y="405" width="10" height="11" data-value="2F-I0-0-1" class="cell 보충"/>
   <rect x="21" y="406" width="5" height="5" data-value="2F-P10-16-203" class="cell 피킹"/>
   <line x1="21" y1="406" x2="26" y2="411" class="diagonal-line"/>
   <rect x="26" y="406" width="5" height="5" data-value="2F-P10-16-202" class="cell 피킹"/>
