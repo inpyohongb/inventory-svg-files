@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="-1 -1 1289 730" preserveAspectRatio="xMidYMid meet">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-1 -1 1289 740" preserveAspectRatio="xMidYMid meet">
   <style>
         .cell { stroke: black; stroke-width: 0.5; fill: white; }
         .피킹 { fill-opacity: 0.3; stroke-dasharray: 2,2; }
@@ -4289,29 +4289,29 @@
   <line x1="452" y1="671" x2="456" y2="678" class="diagonal-line"/>
   <rect x="456" y="671" width="3" height="7" data-value="2F-BB2-46-103" class="cell 피킹"/>
   <line x1="456" y1="671" x2="459" y2="678" class="diagonal-line"/>
-  <rect x="153" y="675" width="10" height="11" data-value="2F-I0-15-1" class="cell 보충"/>
-  <rect x="163" y="675" width="10" height="11" data-value="2F-I0-14-1" class="cell 보충"/>
-  <rect x="153" y="686" width="10" height="11" data-value="2F-I0-15-1" class="cell 보충"/>
-  <rect x="163" y="686" width="10" height="11" data-value="2F-I0-14-1" class="cell 보충"/>
-  <rect x="3" y="706" width="11" height="11" data-value="2F-I0-32-1" class="cell 보충"/>
-  <rect x="14" y="706" width="11" height="11" data-value="2F-I0-31-1" class="cell 보충"/>
-  <rect x="25" y="706" width="11" height="11" data-value="2F-I0-30-1" class="cell 보충"/>
-  <rect x="36" y="706" width="11" height="11" data-value="2F-I0-29-1" class="cell 보충"/>
-  <rect x="47" y="706" width="11" height="11" data-value="2F-I0-28-1" class="cell 보충"/>
-  <rect x="58" y="706" width="11" height="11" data-value="2F-I0-27-1" class="cell 보충"/>
-  <rect x="69" y="706" width="11" height="11" data-value="2F-I0-26-1" class="cell 보충"/>
-  <rect x="99" y="706" width="11" height="11" data-value="2F-I0-25-1" class="cell 보충"/>
-  <rect x="110" y="706" width="9" height="11" data-value="2F-I0-24-1" class="cell 보충"/>
-  <rect x="119" y="706" width="9" height="11" data-value="2F-I0-23-1" class="cell 보충"/>
-  <rect x="128" y="706" width="9" height="11" data-value="2F-I0-22-1" class="cell 보충"/>
-  <rect x="137" y="706" width="9" height="11" data-value="2F-I0-21-1" class="cell 보충"/>
-  <rect x="146" y="706" width="9" height="11" data-value="2F-I0-20-1" class="cell 보충"/>
+  <rect x="3" y="706" width="11" height="11" data-value="2F-I0-34-1" class="cell 보충"/>
+  <rect x="14" y="706" width="11" height="11" data-value="2F-I0-33-1" class="cell 보충"/>
+  <rect x="25" y="706" width="11" height="11" data-value="2F-I0-32-1" class="cell 보충"/>
+  <rect x="36" y="706" width="11" height="11" data-value="2F-I0-31-1" class="cell 보충"/>
+  <rect x="47" y="706" width="11" height="11" data-value="2F-I0-30-1" class="cell 보충"/>
+  <rect x="58" y="706" width="11" height="11" data-value="2F-I0-29-1" class="cell 보충"/>
+  <rect x="69" y="706" width="11" height="11" data-value="2F-I0-28-1" class="cell 보충"/>
+  <rect x="80" y="706" width="9" height="11" data-value="2F-I0-27-1" class="cell 보충"/>
+  <rect x="99" y="706" width="11" height="11" data-value="2F-I0-26-1" class="cell 보충"/>
+  <rect x="110" y="706" width="9" height="11" data-value="2F-I0-25-1" class="cell 보충"/>
+  <rect x="119" y="706" width="9" height="11" data-value="2F-I0-24-1" class="cell 보충"/>
+  <rect x="128" y="706" width="9" height="11" data-value="2F-I0-23-1" class="cell 보충"/>
+  <rect x="137" y="706" width="9" height="11" data-value="2F-I0-22-1" class="cell 보충"/>
+  <rect x="146" y="706" width="9" height="11" data-value="2F-I0-21-1" class="cell 보충"/>
   <rect x="155" y="706" width="9" height="11" data-value="2F-I0-19-1" class="cell 보충"/>
-  <rect x="164" y="706" width="11" height="11" data-value="2F-I0-18-1" class="cell 보충"/>
-  <rect x="175" y="706" width="11" height="11" data-value="2F-I0-17-1" class="cell 보충"/>
-  <rect x="186" y="706" width="11" height="11" data-value="2F-I0-16-1" class="cell 보충"/>
-  <rect x="224" y="706" width="10" height="11" data-value="2F-I0-13-1" class="cell 보충"/>
-  <rect x="234" y="706" width="10" height="11" data-value="2F-I0-12-1" class="cell 보충"/>
+  <rect x="164" y="706" width="11" height="11" data-value="2F-I0-20-1" class="cell 보충"/>
+  <rect x="175" y="706" width="11" height="11" data-value="2F-I0-19-1" class="cell 보충"/>
+  <rect x="186" y="706" width="11" height="11" data-value="2F-I0-18-1" class="cell 보충"/>
+  <rect x="224" y="706" width="10" height="11" data-value="2F-I0-17-1" class="cell 보충"/>
+  <rect x="234" y="706" width="10" height="11" data-value="2F-I0-16-1" class="cell 보충"/>
+  <rect x="244" y="706" width="10" height="11" data-value="2F-I0-15-1" class="cell 보충"/>
+  <rect x="254" y="706" width="10" height="11" data-value="2F-I0-14-1" class="cell 보충"/>
+  <rect x="264" y="706" width="10" height="11" data-value="2F-I0-13-1" class="cell 보충"/>
   <rect x="387" y="706" width="9" height="11" data-value="2F-I0-11-1" class="cell 보충"/>
   <rect x="396" y="706" width="9" height="11" data-value="2F-I0-10-1" class="cell 보충"/>
   <rect x="405" y="706" width="9" height="11" data-value="2F-I0-9-1" class="cell 보충"/>
@@ -4365,25 +4365,29 @@
   <line x1="1054" y1="706" x2="1064" y2="717" class="diagonal-line"/>
   <rect x="1064" y="706" width="10" height="11" data-value="2F-F2-35-1" class="cell 피킹"/>
   <line x1="1064" y1="706" x2="1074" y2="717" class="diagonal-line"/>
-  <rect x="3" y="717" width="11" height="11" data-value="2F-I0-32-1" class="cell 보충"/>
-  <rect x="14" y="717" width="11" height="11" data-value="2F-I0-31-1" class="cell 보충"/>
-  <rect x="25" y="717" width="11" height="11" data-value="2F-I0-30-1" class="cell 보충"/>
-  <rect x="36" y="717" width="11" height="11" data-value="2F-I0-29-1" class="cell 보충"/>
-  <rect x="47" y="717" width="11" height="11" data-value="2F-I0-28-1" class="cell 보충"/>
-  <rect x="58" y="717" width="11" height="11" data-value="2F-I0-27-1" class="cell 보충"/>
-  <rect x="69" y="717" width="11" height="11" data-value="2F-I0-26-1" class="cell 보충"/>
-  <rect x="99" y="717" width="11" height="11" data-value="2F-I0-25-1" class="cell 보충"/>
-  <rect x="110" y="717" width="9" height="11" data-value="2F-I0-24-1" class="cell 보충"/>
-  <rect x="119" y="717" width="9" height="11" data-value="2F-I0-23-1" class="cell 보충"/>
-  <rect x="128" y="717" width="9" height="11" data-value="2F-I0-22-1" class="cell 보충"/>
-  <rect x="137" y="717" width="9" height="11" data-value="2F-I0-21-1" class="cell 보충"/>
-  <rect x="146" y="717" width="9" height="11" data-value="2F-I0-20-1" class="cell 보충"/>
+  <rect x="3" y="717" width="11" height="11" data-value="2F-I0-34-1" class="cell 보충"/>
+  <rect x="14" y="717" width="11" height="11" data-value="2F-I0-33-1" class="cell 보충"/>
+  <rect x="25" y="717" width="11" height="11" data-value="2F-I0-32-1" class="cell 보충"/>
+  <rect x="36" y="717" width="11" height="11" data-value="2F-I0-31-1" class="cell 보충"/>
+  <rect x="47" y="717" width="11" height="11" data-value="2F-I0-30-1" class="cell 보충"/>
+  <rect x="58" y="717" width="11" height="11" data-value="2F-I0-29-1" class="cell 보충"/>
+  <rect x="69" y="717" width="11" height="11" data-value="2F-I0-28-1" class="cell 보충"/>
+  <rect x="80" y="717" width="9" height="11" data-value="2F-I0-27-1" class="cell 보충"/>
+  <rect x="99" y="717" width="11" height="11" data-value="2F-I0-26-1" class="cell 보충"/>
+  <rect x="110" y="717" width="9" height="11" data-value="2F-I0-25-1" class="cell 보충"/>
+  <rect x="119" y="717" width="9" height="11" data-value="2F-I0-24-1" class="cell 보충"/>
+  <rect x="128" y="717" width="9" height="11" data-value="2F-I0-23-1" class="cell 보충"/>
+  <rect x="137" y="717" width="9" height="11" data-value="2F-I0-22-1" class="cell 보충"/>
+  <rect x="146" y="717" width="9" height="11" data-value="2F-I0-21-1" class="cell 보충"/>
   <rect x="155" y="717" width="9" height="11" data-value="2F-I0-19-1" class="cell 보충"/>
-  <rect x="164" y="717" width="11" height="11" data-value="2F-I0-18-1" class="cell 보충"/>
-  <rect x="175" y="717" width="11" height="11" data-value="2F-I0-17-1" class="cell 보충"/>
-  <rect x="186" y="717" width="11" height="11" data-value="2F-I0-16-1" class="cell 보충"/>
-  <rect x="224" y="717" width="10" height="11" data-value="2F-I0-13-1" class="cell 보충"/>
-  <rect x="234" y="717" width="10" height="11" data-value="2F-I0-12-1" class="cell 보충"/>
+  <rect x="164" y="717" width="11" height="11" data-value="2F-I0-20-1" class="cell 보충"/>
+  <rect x="175" y="717" width="11" height="11" data-value="2F-I0-19-1" class="cell 보충"/>
+  <rect x="186" y="717" width="11" height="11" data-value="2F-I0-18-1" class="cell 보충"/>
+  <rect x="224" y="717" width="10" height="11" data-value="2F-I0-17-1" class="cell 보충"/>
+  <rect x="234" y="717" width="10" height="11" data-value="2F-I0-16-1" class="cell 보충"/>
+  <rect x="244" y="717" width="10" height="11" data-value="2F-I0-15-1" class="cell 보충"/>
+  <rect x="254" y="717" width="10" height="11" data-value="2F-I0-14-1" class="cell 보충"/>
+  <rect x="264" y="717" width="10" height="11" data-value="2F-I0-13-1" class="cell 보충"/>
   <rect x="387" y="717" width="9" height="11" data-value="2F-I0-11-1" class="cell 보충"/>
   <rect x="396" y="717" width="9" height="11" data-value="2F-I0-10-1" class="cell 보충"/>
   <rect x="405" y="717" width="9" height="11" data-value="2F-I0-9-1" class="cell 보충"/>
