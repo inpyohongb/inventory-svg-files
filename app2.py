@@ -27,13 +27,6 @@ def resource_path(relative_path):
         return os.path.join(sys._MEIPASS, relative_path)
     return os.path.join(os.path.abspath("."), relative_path)
 
-# Static 디렉토리 생성 (Flask가 static 파일을 찾을 수 있도록)
-os.makedirs(STATIC_LOCAL_DIR, exist_ok=True)
-
-# Flask 앱 생성 시 static_folder를 명시적으로 지정
-# (exec() 실행 시 __file__ 경로가 달라져서 기본 static 폴더를 찾지 못하는 문제 해결)
-app = Flask(__name__, static_folder=STATIC_LOCAL_DIR)
-app.secret_key = os.environ.get('SECRET_KEY', 'fallback_secret_key')
 
 # 앱 버전 정보
 APP_VERSION = "1.0.0"  # 코드 변경 시 이 버전을 증가시켜야 함
@@ -53,6 +46,14 @@ TEMPLATE_LOCAL_DIR = os.path.join(os.path.expanduser("~"), ".inventory_viewer", 
 # Static 파일 동적 로드를 위한 설정
 STATIC_REPOSITORY_URL = "https://inpyohongb.github.io/inventory-svg-files/static"
 STATIC_LOCAL_DIR = os.path.join(os.path.expanduser("~"), ".inventory_viewer", "static")
+
+# Static 디렉토리 생성 (Flask가 static 파일을 찾을 수 있도록)
+os.makedirs(STATIC_LOCAL_DIR, exist_ok=True)
+
+# Flask 앱 생성 시 static_folder를 명시적으로 지정
+# (exec() 실행 시 __file__ 경로가 달라져서 기본 static 폴더를 찾지 못하는 문제 해결)
+app = Flask(__name__, static_folder=STATIC_LOCAL_DIR)
+app.secret_key = os.environ.get('SECRET_KEY', 'fallback_secret_key')
 
 # Configuration
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
@@ -895,3 +896,4 @@ if __name__ == '__main__':
     
     # 로컬 서버 실행
     app.run(host='127.0.0.1', port=5000, debug=False)
+
