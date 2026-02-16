@@ -27,7 +27,12 @@ def resource_path(relative_path):
         return os.path.join(sys._MEIPASS, relative_path)
     return os.path.join(os.path.abspath("."), relative_path)
 
-app = Flask(__name__)
+# Static 디렉토리 생성 (Flask가 static 파일을 찾을 수 있도록)
+os.makedirs(STATIC_LOCAL_DIR, exist_ok=True)
+
+# Flask 앱 생성 시 static_folder를 명시적으로 지정
+# (exec() 실행 시 __file__ 경로가 달라져서 기본 static 폴더를 찾지 못하는 문제 해결)
+app = Flask(__name__, static_folder=STATIC_LOCAL_DIR)
 app.secret_key = os.environ.get('SECRET_KEY', 'fallback_secret_key')
 
 # 앱 버전 정보
@@ -44,6 +49,10 @@ VERSION_CHECK_URL = "https://inpyohongb.github.io/inventory-svg-files/version.js
 TEMPLATE_REPOSITORY_URL = "https://inpyohongb.github.io/inventory-svg-files/templates"
 TEMPLATE_LOCAL_DIR = os.path.join(os.path.expanduser("~"), ".inventory_viewer", "templates")
 # 템플릿도 루트의 version.json에서 확인 (SVG와 동일)
+
+# Static 파일 동적 로드를 위한 설정
+STATIC_REPOSITORY_URL = "https://inpyohongb.github.io/inventory-svg-files/static"
+STATIC_LOCAL_DIR = os.path.join(os.path.expanduser("~"), ".inventory_viewer", "static")
 
 # Configuration
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
@@ -150,6 +159,94 @@ class TemplateManager:
             return local_path
         # 로컬에 없으면 기본 템플릿 경로 반환 (오프라인 대비)
         return resource_path(f'templates/{filename}')
+
+# Static 파일 관리 클래스 (템플릿과 유사한 구조)
+class StaticManager:
+    def __init__(self):
+        # 로컬 static 디렉토리 생성
+        if not os.path.exists(STATIC_LOCAL_DIR):
+            os.makedirs(STATIC_LOCAL_DIR, exist_ok=True)
+        
+        self.static_files = {}  # 파일명: 해시값
+        self.load_local_static_info()
+    
+    def load_local_static_info(self):
+        info_path = os.path.join(STATIC_LOCAL_DIR, "static_info.json")
+        if os.path.exists(info_path):
+            with open(info_path, 'r') as f:
+                self.static_files = json.load(f)
+    
+    def save_local_static_info(self):
+        info_path = os.path.join(STATIC_LOCAL_DIR, "static_info.json")
+        with open(info_path, 'w') as f:
+            json.dump(self.static_files, f)
+    
+    def check_for_updates(self):
+        """서버에서 static 파일 업데이트 확인 및 다운로드 (루트 version.json 사용)"""
+        try:
+            response = requests.get(VERSION_CHECK_URL, headers={'Cache-Control': 'no-cache'}, timeout=10)
+            
+            if response.status_code == 200:
+                all_files = response.json()
+                # static 파일만 필터링 (static/ 접두사가 있는 파일)
+                remote_files = {}
+                for key, value in all_files.items():
+                    if key.startswith('static/'):
+                        # static/styles.css -> styles.css로 변환
+                        filename = key.replace('static/', '')
+                        remote_files[filename] = value
+                
+                if not remote_files:
+                    return False
+        
+                # 각 파일 확인
+                for filename, remote_hash in remote_files.items():
+                    local_file_path = os.path.join(STATIC_LOCAL_DIR, filename)
+                
+                    # 로컬 파일이 존재하는지 확인
+                    file_exists = os.path.exists(local_file_path)
+                    update_needed = True
+                
+                    if file_exists:
+                        # 파일이 있으면 현재 해시 계산 (SHA256 사용)
+                        with open(local_file_path, 'rb') as f:
+                            content = f.read()
+                            current_hash = hashlib.sha256(content).hexdigest()
+                    
+                        # 해시 비교로 업데이트 필요성 결정
+                        update_needed = current_hash != remote_hash
+                
+                    # 파일이 없거나 해시가 다른 경우 다운로드
+                    if not file_exists or update_needed:
+                        result = self._download_static(filename)
+                        if result:
+                            self.static_files[filename] = remote_hash
+        
+                self.save_local_static_info()
+                return True
+            return False
+        except Exception as e:
+            return False
+    
+    def _download_static(self, filename):
+        """Static 파일 다운로드"""
+        try:
+            file_url = f"{STATIC_REPOSITORY_URL}/{filename}"
+            response = requests.get(file_url, timeout=30)
+        
+            if response.status_code == 200:
+                local_path = os.path.join(STATIC_LOCAL_DIR, filename)
+                # 디렉토리 생성 (하위 디렉토리가 있는 경우)
+                dir_path = os.path.dirname(local_path)
+                if dir_path:
+                    os.makedirs(dir_path, exist_ok=True)
+                with open(local_path, 'wb') as f:
+                    f.write(response.content)
+                return True
+            else:
+                return False
+        except Exception as e:
+            return False
 
 # SVG 파일 관리 클래스
 class SvgManager:
@@ -331,6 +428,7 @@ class Cache:
 cache = Cache()
 svg_manager = SvgManager()
 template_manager = TemplateManager()
+static_manager = StaticManager()
 
 def compress_response(minimum_size=1000):
     def decorator(f):
@@ -408,6 +506,8 @@ def update_cache():
     svg_manager.check_for_updates()
     # 템플릿 파일 업데이트 확인
     template_manager.check_for_updates()
+    # Static 파일 업데이트 확인
+    static_manager.check_for_updates()
     
     while True:
         try:
@@ -426,16 +526,26 @@ def update_cache():
             # 10분마다 데이터 업데이트
             time.sleep(600)
             
-            # 한 시간마다 SVG 및 템플릿 업데이트 확인
+            # 한 시간마다 SVG, 템플릿, Static 파일 업데이트 확인
             if time.time() % 3600 < 600:
                 svg_manager.check_for_updates()
                 template_manager.check_for_updates()
+                static_manager.check_for_updates()
                 
         except Exception as e:
             print(f"Error in cache update: {e}")
             time.sleep(60)
 
 # 라우트 핸들러 (일부 수정)
+
+# GitHub 서버 코드 연동 테스트용 (확인 후 제거 가능)
+@app.route('/api/server-source')
+def server_source_test():
+    return jsonify({
+        "message": "GitHub 서버 코드 연동 테스트 성공",
+        "source": "github",
+        "test": True
+    })
 
 @app.route('/get_svg/<sheet>')
 def get_svg(sheet):
@@ -769,9 +879,10 @@ if __name__ == '__main__':
             file_path = os.path.join(SVG_LOCAL_DIR, file)
             if os.path.isfile(file_path):
                 os.unlink(file_path)
-    # SVG 및 템플릿 업데이트 체크
+    # SVG, 템플릿, Static 파일 업데이트 체크
     svg_manager.check_for_updates()
     template_manager.check_for_updates()
+    static_manager.check_for_updates()
     
     # 초기 데이터 로드 및 통계 계산
     initialize_cache()
@@ -784,4 +895,3 @@ if __name__ == '__main__':
     
     # 로컬 서버 실행
     app.run(host='127.0.0.1', port=5000, debug=False)
-
