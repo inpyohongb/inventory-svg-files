@@ -6,5 +6,6 @@
   "2F(보충).svg": "d013238ff1e59427a91d99284237b681a0c1edcb36cd23681b674c92cc91a9a8",
   "2F(피킹).svg": "b178d0d4d34baaf5c315477ce82586b3329fa18e90c45d7ab225c659f8e3399b",
   "templates/index.html": "07a6197f207bdf38d59b56bf8fc9fd44828ee8299b8484f641b346b90af24d9b",
-  "templates/login.html": "c25d8f40b1475362ee8bd6f71627acc7957af1b2bef8783d8db38a1da03f292b"
+  "templates/login.html": "c25d8f40b1475362ee8bd6f71627acc7957af1b2bef8783d8db38a1da03f292b",
+  "app2.py": "4d09b4aea4f8ce8e0135f28e142d4e2580e8187726e85c0bc25a60963cf6ada2"
 }
