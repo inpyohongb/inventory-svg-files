@@ -4,6 +4,7 @@ on:
     paths:
       - 'svg/**/*.svg'
       - 'templates/**/*.html'
+      - 'static/**'
       - 'app2.py'
     branches: [ main ]
   workflow_dispatch:
@@ -54,6 +55,16 @@ jobs:
                       filepath = os.path.join(templates_dir, filename)
                       # templates/ 접두사를 추가하여 키 생성
                       version_data[f'templates/{filename}'] = calculate_file_hash(filepath)
+
+          # Static 파일 처리 (CSS, JS 등)
+          static_dir = 'static'
+          if os.path.exists(static_dir):
+              for root, dirs, files in os.walk(static_dir):
+                  for filename in files:
+                      filepath = os.path.join(root, filename)
+                      # static/styles.css -> static/styles.css로 키 생성
+                      relative_path = os.path.relpath(filepath, '.')
+                      version_data[relative_path] = calculate_file_hash(filepath)
 
           # app2.py (서버 스크립트) 처리 — exe launcher가 GitHub에서 받아 실행하는 파일
           if os.path.exists('app2.py'):
