@@ -437,15 +437,6 @@ def update_cache():
 
 # 라우트 핸들러 (일부 수정)
 
-# GitHub 서버 코드 연동 테스트용 (확인 후 제거 가능)
-@app.route('/api/server-source')
-def server_source_test():
-    return jsonify({
-        "message": "GitHub 서버 코드 연동 테스트 성공",
-        "source": "github",
-        "test": True
-    })
-
 @app.route('/get_svg/<sheet>')
 def get_svg(sheet):
     if 'user_id' not in session:
@@ -793,3 +784,4 @@ if __name__ == '__main__':
     
     # 로컬 서버 실행
     app.run(host='127.0.0.1', port=5000, debug=False)
+
