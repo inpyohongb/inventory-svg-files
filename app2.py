@@ -27,7 +27,6 @@ def resource_path(relative_path):
         return os.path.join(sys._MEIPASS, relative_path)
     return os.path.join(os.path.abspath("."), relative_path)
 
-
 # 앱 버전 정보
 APP_VERSION = "1.0.0"  # 코드 변경 시 이 버전을 증가시켜야 함
 APP_UPDATE_CHECK_URL = "https://inpyohongb.github.io/inventory-svg-files/app_version.json"
@@ -68,6 +67,7 @@ REPLENISHMENT_RANGE_NAME = 'goods2!A1:V'
 ID_RANGE_NAME = 'ID!A2:A'
 SKU_TREND_RANGE_NAME = 'picking_sku!A1:U' 
 UNIT_TREND_RANGE_NAME = 'picking_unit!A1:U'
+BATCH_GEN_RANGE_NAME = 'batch_gen!A1:U'
 
 # 템플릿 파일 관리 클래스 (SVG와 유사한 구조)
 class TemplateManager:
@@ -517,7 +517,8 @@ def update_cache():
                 'replenishment': REPLENISHMENT_RANGE_NAME,
                 'valid_ids': ID_RANGE_NAME,
                 'sku_trend': SKU_TREND_RANGE_NAME,
-                'unit_trend': UNIT_TREND_RANGE_NAME
+                'unit_trend': UNIT_TREND_RANGE_NAME,
+                'batch_gen': BATCH_GEN_RANGE_NAME
             }
             
             for data_type, range_name in data_types.items():
@@ -538,6 +539,7 @@ def update_cache():
             time.sleep(60)
 
 # 라우트 핸들러 (일부 수정)
+
 
 @app.route('/get_svg/<sheet>')
 def get_svg(sheet):
@@ -783,6 +785,59 @@ def get_sku_trend():
         return jsonify({'error': str(e)}), 500
 
 
+@app.route('/api/batch_gen_trend')
+def get_batch_gen_trend():
+    """batch_gen 시트 데이터를 조회하는 엔드포인트.
+    반환 형식은 /api/sku_trend와 동일: dates, zones, lastUpdate.
+    """
+    if 'user_id' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    try:
+        batch_gen_data, update_time = cache.get_data('batch_gen')
+
+        if isinstance(batch_gen_data, str):
+            batch_gen_data = json.loads(batch_gen_data)
+            batch_gen_data = batch_gen_data.get('data', [])
+
+        if not batch_gen_data:
+            return jsonify({'dates': [], 'zones': {}, 'lastUpdate': update_time})
+
+        dates = []
+        zones_data = {}
+
+        first_row = batch_gen_data[0]
+        if isinstance(first_row, dict):
+            zone_names = [k for k in first_row.keys() if k != 'date' and k.upper() != 'TOTAL']
+            for zone in zone_names:
+                zones_data[zone] = []
+
+        for row in batch_gen_data:
+            if isinstance(row, dict):
+                date = row.get('date', '')
+                if date:
+                    dates.append(str(date))
+                    for zone in zone_names:
+                        value = row.get(zone, 0)
+                        try:
+                            str_value = str(value).replace(',', '').replace('%', '').strip() if value else '0'
+                            num_value = float(str_value) if str_value else 0
+                            zones_data[zone].append(num_value)
+                        except (ValueError, TypeError):
+                            zones_data[zone].append(0)
+
+        result = {
+            'dates': dates,
+            'zones': zones_data,
+            'lastUpdate': update_time
+        }
+
+        return jsonify(result)
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 @app.route('/api/unit_trend')
 def get_unit_trend():
     """피킹UNIT 시트 데이터를 조회하는 엔드포인트
@@ -861,6 +916,9 @@ def initialize_cache():
         # UNIT 트렌드 데이터(picking_unit)도 함께 로드
         unit_trend_data, unit_trend_time = fetch_sheet_data(UNIT_TREND_RANGE_NAME)
         cache.update_data('unit_trend', unit_trend_data, unit_trend_time)
+
+        batch_gen_data, batch_gen_time = fetch_sheet_data(BATCH_GEN_RANGE_NAME)
+        cache.update_data('batch_gen', batch_gen_data, batch_gen_time)
     except Exception as e:
         pass
 
@@ -887,5 +945,3 @@ if __name__ == '__main__':
     
     # 로컬 서버 실행
     app.run(host='127.0.0.1', port=5000, debug=False)
-
-
