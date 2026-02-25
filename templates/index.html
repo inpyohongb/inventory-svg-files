@@ -151,25 +151,41 @@
             </div>
         </div>
         <div id="svgContainer"></div>
-        <div id="summaryDashboard" style="display: none; padding: 16px;">
-            <h2>재고현황 Dashboard</h2>
+        <div id="summaryDashboard" style="display: none;">
+            <div class="summary-controls">
+                <h2>재고현황 Dashboard</h2>
+                <div class="summary-controls-buttons">
+                    <button type="button" class="summary-view-btn active" data-view="status">현황</button>
+                    <button type="button" class="summary-view-btn" data-view="trend">추이</button>
+                </div>
+            </div>
+            <div class="summary-container">
+            <div id="summaryViewStatus" class="summary-view-panel">
             <div style="display:flex; gap:16px; flex-wrap:wrap;">
                 <div style="flex:1 1 45%; min-width:300px; max-width:800px;">
-                    <h3>1) 평균 출고량</h3>
+                    <h3>평균 출고량</h3>
                     <canvas id="chartAvgSales" style="width:100%; max-height:250px;"></canvas>
                 </div>
                 <div style="flex:1 1 45%; min-width:300px; max-width:900px; margin-left:auto;">
-                    <h3>2) SKU / UNIT</h3>
+                    <h3>SKU / UNIT</h3>
                     <canvas id="chartSkuUnit" style="width:100%; max-height:250px;"></canvas>
                 </div>
             </div>
             <div style="margin-top:20px;">
-                <h3>3) 카테고리 TOP3</h3>
+                <h3>카테고리 TOP3</h3>
                 <div id="zoneCategoryCharts" style="display:flex; gap:12px; flex-wrap:wrap;"></div>
             </div>
-            <div style="margin-top:20px;">
-                <h3>4) 보유재고 추이</h3>
+            </div>
+            <div id="summaryViewTrend" class="summary-view-panel" style="display:none;">
+            <div style="margin-top:0;">
+                <h3>보유재고 추이</h3>
                 <div id="skuTrendChartsContainer" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap:20px;"></div>
+            </div>
+            <div style="margin-top:20px;">
+                <h3>배치생성률 추이</h3>
+                <div id="batchGenTrendChartsContainer" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap:20px;"></div>
+            </div>
+            </div>
             </div>
         </div>
         <div id="popup"></div>
@@ -339,6 +355,24 @@
 
         document.querySelectorAll('.tab').forEach(tab => {
             tab.addEventListener('click', () => switchTab(tab.dataset.sheet));
+        });
+
+        function switchSummaryView(view) {
+            const statusPanel = document.getElementById('summaryViewStatus');
+            const trendPanel = document.getElementById('summaryViewTrend');
+            document.querySelectorAll('.summary-view-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.view === view);
+            });
+            if (view === 'status') {
+                if (statusPanel) statusPanel.style.display = '';
+                if (trendPanel) trendPanel.style.display = 'none';
+            } else {
+                if (statusPanel) statusPanel.style.display = 'none';
+                if (trendPanel) trendPanel.style.display = '';
+            }
+        }
+        document.querySelectorAll('.summary-view-btn').forEach(btn => {
+            btn.addEventListener('click', () => switchSummaryView(btn.dataset.view));
         });
 
         function zoomIn() {
@@ -556,7 +590,7 @@
         }
 
         // ----- Summary dashboard: zone_statistics 계산 및 차트 렌더링 -----
-        let summaryCharts = { avgSales: null, skuUnit: null, category: null, skuTrend: null };
+        let summaryCharts = { avgSales: null, skuUnit: null, category: null, skuTrend: null, batchGenTrend: null };
 
         function parseNumber(v) {
             if (v === null || v === undefined) return 0;
@@ -632,6 +666,29 @@
                 })
                 .catch(err => {
                     console.error('Failed to load SKU trend data:', err);
+                });
+            // 배치생성률 추이 차트 로드
+            fetch('/api/batch_gen_trend')
+                .then(r => r.json())
+                .then(resp => {
+                    if (resp.error) {
+                        console.error('Failed to load batch gen trend:', resp.error);
+                        return;
+                    }
+                    // 배치생성률 추이 데이터 일부 콘솔 출력 (디버깅용)
+                    const dates = resp.dates || [];
+                    const zones = resp.zones || {};
+                    console.log('[batch_gen_trend] lastUpdate:', resp.lastUpdate);
+                    console.log('[batch_gen_trend] dates 개수:', dates.length, '| 처음 5개:', dates.slice(0, 5));
+                    console.log('[batch_gen_trend] zones 키:', Object.keys(zones));
+                    Object.keys(zones).slice(0, 3).forEach(zone => {
+                        const arr = zones[zone] || [];
+                        console.log('[batch_gen_trend] zones["' + zone + '"] 처음 10개:', arr.slice(0, 10));
+                    });
+                    renderBatchGenTrendChart(resp);
+                })
+                .catch(err => {
+                    console.error('Failed to load batch gen trend data:', err);
                 });
         }
 
@@ -1166,6 +1223,203 @@
                         }
                     }
                 });
+            });
+        }
+
+        async function renderBatchGenTrendChart(trendData) {
+            const { dates, zones, lastUpdate } = trendData;
+            if (!dates || dates.length === 0 || !zones || Object.keys(zones).length === 0) {
+                const container = document.getElementById('batchGenTrendChartsContainer');
+                if (container) container.innerHTML = '<p style="color:#666;">배치생성률 추이 데이터가 없습니다.</p>';
+                return;
+            }
+            // 주차별로 존별 일자 값 수집 (그룹 합산 없이 존 단위 유지)
+            const weeklyData = {};
+            dates.forEach((date, idx) => {
+                const weekKey = getWeekKey(date);
+                if (!weeklyData[weekKey]) {
+                    weeklyData[weekKey] = { startDate: getWeekStartDate(date), dailyPerZone: [] };
+                }
+                const dayPerZone = {};
+                Object.keys(zones).forEach(zone => {
+                    dayPerZone[zone] = (zones[zone] && zones[zone][idx] !== undefined) ? zones[zone][idx] : 0;
+                });
+                weeklyData[weekKey].dailyPerZone.push(dayPerZone);
+            });
+            const sortedWeeks = Object.keys(weeklyData).sort((a, b) => {
+                const [yearA, weekA] = a.split('-W').map(x => parseInt(x, 10));
+                const [yearB, weekB] = b.split('-W').map(x => parseInt(x, 10));
+                if (yearA !== yearB) return yearA - yearB;
+                return weekA - weekB;
+            });
+            const weeklyLabels_temp = sortedWeeks.map(weekKey => {
+                const [year, week] = weekKey.split('-W').map(x => parseInt(x, 10));
+                return 'Y' + String(year).slice(-2) + ' W' + week;
+            });
+            const zoneOrder = sortLabelsByOrder(Object.keys(zones));
+            const colors = [
+                'rgba(255, 99, 132, 0.8)', 'rgba(54, 162, 235, 0.8)', 'rgba(255, 206, 86, 0.8)',
+                'rgba(75, 192, 192, 0.8)', 'rgba(153, 102, 255, 0.8)', 'rgba(255, 159, 64, 0.8)',
+                'rgba(199, 199, 199, 0.8)', 'rgba(83, 102, 255, 0.8)', 'rgba(255, 99, 255, 0.8)',
+                'rgba(99, 255, 132, 0.8)', 'rgba(255, 159, 132, 0.8)', 'rgba(132, 99, 255, 0.8)',
+                'rgba(99, 132, 255, 0.8)', 'rgba(255, 132, 99, 0.8)', 'rgba(132, 255, 99, 0.8)'
+            ];
+            // 0 또는 공백인 일자는 주차별 평균에서 제외
+            function isValidBatchVal(v) {
+                if (v === null || v === undefined || v === '') return false;
+                const n = Number(v);
+                return !isNaN(n) && n !== 0;
+            }
+            const datasets = zoneOrder.map((zone, idx) => {
+                const weeklyValues = sortedWeeks.map(weekKey => {
+                    const dailyPerZone = weeklyData[weekKey].dailyPerZone || [];
+                    const validValues = dailyPerZone
+                        .map(day => day[zone])
+                        .filter(v => isValidBatchVal(v));
+                    if (validValues.length === 0) return null;
+                    const sum = validValues.reduce((acc, v) => acc + Number(v), 0);
+                    return Math.round(sum / validValues.length * 100) / 100;
+                });
+                return {
+                    type: 'line',
+                    label: zone,
+                    data: weeklyValues,
+                    borderColor: colors[idx % colors.length].replace('0.8', '1'),
+                    backgroundColor: colors[idx % colors.length],
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: false
+                };
+            });
+            const container = document.getElementById('batchGenTrendChartsContainer');
+            container.innerHTML = '';
+            if (summaryCharts.batchGenTrend && summaryCharts.batchGenTrend.destroy) {
+                summaryCharts.batchGenTrend.destroy();
+            }
+            const chartDiv = document.createElement('div');
+            chartDiv.style.padding = '15px';
+            chartDiv.style.border = '1px solid #ddd';
+            chartDiv.style.borderRadius = '8px';
+            chartDiv.style.backgroundColor = '#f9f9f9';
+
+            // 차트 + 토글을 담는 가로 레이아웃 컨테이너
+            const contentRow = document.createElement('div');
+            contentRow.style.display = 'flex';
+            contentRow.style.flexDirection = 'row';
+            contentRow.style.alignItems = 'flex-start';
+            contentRow.style.gap = '12px';
+
+            // 캔버스를 감싸는 래퍼 (차트 영역)
+            const canvasWrapper = document.createElement('div');
+            canvasWrapper.style.flex = '1';
+
+            // 존 토글 컨트롤 (차트 우측 사이드에 배치)
+            const toggleWrapper = document.createElement('div');
+            toggleWrapper.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
+            toggleWrapper.style.border = '1px solid #ccc';
+            toggleWrapper.style.borderRadius = '6px';
+            toggleWrapper.style.padding = '6px 8px';
+            toggleWrapper.style.maxHeight = '220px';
+            toggleWrapper.style.overflowY = 'auto';
+            toggleWrapper.style.fontSize = '11px';
+            toggleWrapper.style.boxShadow = '0 2px 6px rgba(0, 0, 0, 0.15)';
+            toggleWrapper.style.minWidth = '120px';
+            toggleWrapper.style.maxWidth = '200px';
+
+            const toggleTitle = document.createElement('div');
+            toggleTitle.textContent = 'Zone 토글';
+            toggleTitle.style.fontWeight = '600';
+            toggleTitle.style.marginBottom = '4px';
+            toggleWrapper.appendChild(toggleTitle);
+
+            const toggleList = document.createElement('div');
+            zoneOrder.forEach(zone => {
+                const item = document.createElement('label');
+                item.style.display = 'flex';
+                item.style.alignItems = 'center';
+                item.style.gap = '4px';
+                item.style.marginBottom = '2px';
+
+                const cb = document.createElement('input');
+                cb.type = 'checkbox';
+                cb.checked = true;
+                cb.dataset.zone = zone;
+
+                cb.addEventListener('change', function () {
+                    const chart = summaryCharts.batchGenTrend;
+                    if (!chart) return;
+                    const idx = chart.data.datasets.findIndex(ds => ds.label === zone);
+                    if (idx === -1) return;
+                    chart.data.datasets[idx].hidden = !this.checked;
+                    chart.update();
+                });
+
+                const labelText = document.createElement('span');
+                labelText.textContent = zone;
+
+                item.appendChild(cb);
+                item.appendChild(labelText);
+                toggleList.appendChild(item);
+            });
+            toggleWrapper.appendChild(toggleList);
+
+            const canvas = document.createElement('canvas');
+            canvas.id = 'chartBatchGenTrendAll';
+            canvas.style.maxHeight = '350px';
+            canvas.style.width = '100%';
+            canvasWrapper.appendChild(canvas);
+
+            contentRow.appendChild(canvasWrapper);
+            contentRow.appendChild(toggleWrapper);
+            chartDiv.appendChild(contentRow);
+            container.appendChild(chartDiv);
+            const allValues = datasets.flatMap(d => d.data).filter(v => typeof v === 'number' && !isNaN(v));
+            let suggestedMin = 0;
+            if (allValues.length > 0) {
+                const minVal = Math.min(...allValues);
+                const maxVal = Math.max(...allValues);
+                const range = maxVal - minVal;
+                const pad = range > 0 ? range * 0.1 : Math.max(1, Math.abs(maxVal) * 0.1);
+                suggestedMin = Math.max(0, minVal - pad);
+            }
+            const ctx = canvas.getContext('2d');
+            summaryCharts.batchGenTrend = new Chart(ctx, {
+                data: { labels: weeklyLabels_temp, datasets: datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { display: true, position: 'top' },
+                        datalabels: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                title: function(context) {
+                                    const weekKey = sortedWeeks[context[0].dataIndex];
+                                    const startDate = weeklyData[weekKey].startDate;
+                                    const endDate = new Date(startDate + 'T00:00:00');
+                                    endDate.setDate(endDate.getDate() + 6);
+                                    const endDateStr = endDate.getFullYear() + '-' + String(endDate.getMonth() + 1).padStart(2, '0') + '-' + String(endDate.getDate()).padStart(2, '0');
+                                    return startDate + ' ~ ' + endDateStr;
+                                },
+                                label: function(context) { return context.dataset.label + ': ' + context.parsed.y + '%'; }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            beginAtZero: false,
+                            min: suggestedMin,
+                            max: 100,
+                            title: { display: true, text: '배치생성률 (%)' }
+                        },
+                        x: {
+                            title: { display: true, text: '' },
+                            ticks: { maxRotation: 45, minRotation: 0 }
+                        }
+                    }
+                }
             });
         }
 
