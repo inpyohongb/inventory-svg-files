@@ -175,6 +175,10 @@
                 <h3>카테고리 TOP3</h3>
                 <div id="zoneCategoryCharts" style="display:flex; gap:12px; flex-wrap:wrap;"></div>
             </div>
+            <div style="margin-top:20px;">
+                <h3>공급사 TOP3</h3>
+                <div id="zoneSupplierCharts" style="display:flex; gap:12px; flex-wrap:wrap; width:50%; max-width:800px;"></div>
+            </div>
             </div>
             <div id="summaryViewTrend" class="summary-view-panel" style="display:none;">
             <div style="margin-top:0;">
@@ -590,7 +594,7 @@
         }
 
         // ----- Summary dashboard: zone_statistics 계산 및 차트 렌더링 -----
-        let summaryCharts = { avgSales: null, skuUnit: null, category: null, skuTrend: null, batchGenTrend: null };
+        let summaryCharts = { avgSales: null, skuUnit: null, category: null, supplier: null, skuTrend: null, batchGenTrend: null };
 
         function parseNumber(v) {
             if (v === null || v === undefined) return 0;
@@ -604,7 +608,7 @@
             data.forEach(item => {
                 const zone = (item['존'] || item['ZONE'] || item['zone'] || '').toString().trim() || '미지정';
                 if (!zones[zone]) {
-                    zones[zone] = { avgSalesSum: 0, skuSet: new Set(), unitSum: 0, categoryCounts: {} };
+                    zones[zone] = { avgSalesSum: 0, skuSet: new Set(), unitSum: 0, categoryCounts: {}, supplierCounts: {} };
                 }
                 const z = zones[zone];
                 z.avgSalesSum += parseNumber(item['평균판매량']);
@@ -613,6 +617,8 @@
                 z.unitSum += parseNumber(item['재고']);
                 const cat = (item['카테고리'] || item['category'] || '').toString().trim() || '미분류';
                 z.categoryCounts[cat] = (z.categoryCounts[cat] || 0) + 1;
+                const supplier = (item['공급사명'] || item['supplierName'] || '').toString().trim() || '미지정';
+                z.supplierCounts[supplier] = (z.supplierCounts[supplier] || 0) + 1;
             });
 
             // 포맷 변환: Set -> count
@@ -622,7 +628,8 @@
                     avgSalesSum: +zones[zone].avgSalesSum.toFixed(2),
                     SKU: zones[zone].skuSet.size,
                     UNIT: +zones[zone].unitSum.toFixed(2),
-                    categoryCounts: zones[zone].categoryCounts
+                    categoryCounts: zones[zone].categoryCounts,
+                    supplierCounts: zones[zone].supplierCounts
                 };
             });
             return result;
@@ -639,6 +646,7 @@
                     renderAvgSalesChart(agg);
                     renderSkuUnitChart(agg);
                     renderZoneCategoryCharts(agg);
+                    renderZoneSupplierCharts(agg);
                     // 마지막 업데이트 시간 표시 (서버에서 전달된 값 사용)
                     if (resp.lastUpdate && resp.lastUpdate.picking) {
                         document.getElementById('lastUpdateTime').textContent = `최근 업데이트: ${resp.lastUpdate.picking}`;
@@ -652,6 +660,7 @@
                     renderAvgSalesChart(agg);
                     renderSkuUnitChart(agg);
                     renderZoneCategoryCharts(agg);
+                    renderZoneSupplierCharts(agg);
                 });
             
             // SKU 추세 차트 로드
@@ -698,7 +707,7 @@
             Object.keys(zone_stats).forEach(zone => {
                 const target = zone.startsWith('1F') ? '1F' : zone;
                 if (!aggregated[target]) {
-                    aggregated[target] = { avgSalesSum: 0, SKU: 0, UNIT: 0, categoryCounts: {} };
+                    aggregated[target] = { avgSalesSum: 0, SKU: 0, UNIT: 0, categoryCounts: {}, supplierCounts: {} };
                 }
                 aggregated[target].avgSalesSum += Number(zone_stats[zone].avgSalesSum || 0);
                 aggregated[target].SKU += Number(zone_stats[zone].SKU || 0);
@@ -706,6 +715,10 @@
                 const cats = zone_stats[zone].categoryCounts || {};
                 Object.keys(cats).forEach(cat => {
                     aggregated[target].categoryCounts[cat] = (aggregated[target].categoryCounts[cat] || 0) + cats[cat];
+                });
+                const supps = zone_stats[zone].supplierCounts || {};
+                Object.keys(supps).forEach(s => {
+                    aggregated[target].supplierCounts[s] = (aggregated[target].supplierCounts[s] || 0) + supps[s];
                 });
             });
             // round numbers
@@ -785,6 +798,32 @@
             });
         }
 
+        // 카테고리별 색상 매핑 (카테고리 TOP3 차트용)
+        const CATEGORY_COLORS = {
+            '주류': 'rgba(153,102,255,0.8)',
+            '기타': 'rgba(128,128,128,0.8)',
+            '가공품': 'rgba(255,159,64,0.8)',
+            '청과': 'rgba(75,192,75,0.8)',
+            '달걀': 'rgba(255,206,86,0.8)',
+            '곡물류': 'rgba(210,180,140,0.8)',
+            '반찬': 'rgba(255,99,71,0.8)',
+            '유제품': 'rgba(135,206,250,0.8)',
+            '음료': 'rgba(70,130,180,0.8)',
+            '반찬/밀키트': 'rgba(255,140,0,0.8)',
+            '델리': 'rgba(186,85,211,0.8)',
+            '육류': 'rgba(205,92,92,0.8)',
+            '수산': 'rgba(64,224,208,0.8)',
+            '냉장식품': 'rgba(173,216,230,0.8)',
+            '빵': 'rgba(222,184,135,0.8)'
+        };
+        function getCategoryColor(category) {
+            return CATEGORY_COLORS[category] || 'rgba(200,200,200,0.8)';
+        }
+        function formatCategoryName(category) {
+            if (category === '반찬/밀키트') return '밀키트';
+            return category;
+        }
+
         function renderZoneCategoryCharts(zone_stats) {
             const container = document.getElementById('zoneCategoryCharts');
             container.innerHTML = '';
@@ -830,14 +869,15 @@
             const ctx = canvas.getContext('2d');
             const namesByRank = [top1Names, top2Names, top3Names];
 
+            // 데이터 값(카테고리)별로 bar 색상 지정
             summaryCharts.category = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels,
                     datasets: [
-                        { label: 'Top1', data: top1Pct, backgroundColor: 'rgba(153,102,255,0.8)' },
-                        { label: 'Top2', data: top2Pct, backgroundColor: 'rgba(75,192,192,0.8)' },
-                        { label: 'Top3', data: top3Pct, backgroundColor: 'rgba(255,159,64,0.8)' }
+                        { label: 'Top1', data: top1Pct, backgroundColor: top1Names.map(getCategoryColor) },
+                        { label: 'Top2', data: top2Pct, backgroundColor: top2Names.map(getCategoryColor) },
+                        { label: 'Top3', data: top3Pct, backgroundColor: top3Names.map(getCategoryColor) }
                     ]
                 },
                 options: {
@@ -845,7 +885,7 @@
                     maintainAspectRatio: false,
                     interaction: { mode: 'index', intersect: false },
                     plugins: {
-                        legend: { display: true },
+                        legend: { display: false },
                         datalabels: {
                             anchor: 'center',
                             align: 'center',
@@ -855,7 +895,7 @@
                                 const datasetIndex = context.datasetIndex;
                                 const dataIndex = context.dataIndex;
                                 const catName = namesByRank[datasetIndex][dataIndex] || ' ';
-                                return catName;
+                                return formatCategoryName(catName);
                             }
                         },
                         tooltip: {
@@ -865,7 +905,8 @@
                                     const dataIndex = context.dataIndex;
                                     const value = context.parsed.y;
                                     const catName = namesByRank[datasetIndex][dataIndex] || ' ';
-                                    return `${context.dataset.label} - ${catName}: ${value}%`;
+                                    const displayName = formatCategoryName(catName);
+                                    return `${context.dataset.label} - ${displayName}: ${value}%`;
                                 }
                             }
                         }
@@ -882,6 +923,128 @@
                             title: { display: true, text: '비율 (%)' }
                         },
                         x: { ticks: { autoSkip: false } }
+                    }
+                }
+            });
+        }
+
+        function renderZoneSupplierCharts(zone_stats) {
+            const container = document.getElementById('zoneSupplierCharts');
+            container.innerHTML = '';
+
+            // 표시할 존만 필터링
+            const allowedZones = [
+                '2FA', '2FBA', '2FBB', '2FC', '2FD', '2FEA', '2FE',
+                '2FK', '2FF', '2FL', '2FG', '2FO', '2FP', '2FR', '2FS'
+            ];
+            const labels = sortLabelsByOrder(Object.keys(zone_stats))
+                .filter(zone => allowedZones.includes(zone));
+
+            const top1Pct = [], top2Pct = [], top3Pct = [];
+            const top1Names = [], top2Names = [], top3Names = [];
+
+            labels.forEach(zone => {
+                const counts = zone_stats[zone].supplierCounts || {};
+                const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+                const totalCount = Object.values(counts).reduce((a, b) => a + b, 0);
+
+                if (totalCount > 0) {
+                    top1Pct.push(entries[0] ? +(entries[0][1] / totalCount * 100).toFixed(1) : 0);
+                    top2Pct.push(entries[1] ? +(entries[1][1] / totalCount * 100).toFixed(1) : 0);
+                    top3Pct.push(entries[2] ? +(entries[2][1] / totalCount * 100).toFixed(1) : 0);
+                } else {
+                    top1Pct.push(0);
+                    top2Pct.push(0);
+                    top3Pct.push(0);
+                }
+                top1Names.push(entries[0] ? entries[0][0] : '');
+                top2Names.push(entries[1] ? entries[1][0] : '');
+                top3Names.push(entries[2] ? entries[2][0] : '');
+            });
+
+            const canvas = document.createElement('canvas');
+            canvas.id = 'zoneTopSuppliersChart';
+            // 존 개수에 비례해서 세로 크기를 넉넉하게 확보
+            const baseHeight = 450;      // 최소 높이
+            const perLabel = 40;         // 존 1개당 추가 높이(px)
+            const dynamicHeight = Math.max(baseHeight, labels.length * perLabel);
+            canvas.style.width = '100%';
+            canvas.style.height = dynamicHeight + 'px';
+            container.appendChild(canvas);
+
+            if (summaryCharts.supplier) {
+                try { summaryCharts.supplier.destroy(); } catch (e) {}
+            }
+
+            const ctx = canvas.getContext('2d');
+            const namesByRank = [top1Names, top2Names, top3Names];
+
+            // x축 최대값을 데이터에 맞게 동적으로 조정
+            const allPctValues = top1Pct.concat(top2Pct, top3Pct);
+            const rawMaxPct = allPctValues.length ? Math.max(...allPctValues) : 0;
+            // 0인 경우 기본 100 유지, 그 외에는 최댓값을 기준으로 10단위 올림 + 약간 여유
+            let dynamicMaxPct = rawMaxPct > 0 ? Math.ceil(rawMaxPct / 10) * 10 : 100;
+            dynamicMaxPct = Math.min(dynamicMaxPct, 100);
+
+            summaryCharts.supplier = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [
+                        { label: 'Top1', data: top1Pct, backgroundColor: 'rgba(153,102,255,0.8)' },
+                        { label: 'Top2', data: top2Pct, backgroundColor: 'rgba(75,192,192,0.8)' },
+                        { label: 'Top3', data: top3Pct, backgroundColor: 'rgba(255,159,64,0.8)' }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    // y축(존) 기준으로 툴팁/호버가 동작하도록 설정
+                    interaction: { mode: 'nearest', axis: 'y', intersect: true },
+                    plugins: {
+                        legend: { display: true },
+                        datalabels: {
+                            // 가로 막대(bar) 오른쪽 바깥에 라벨 표시
+                            anchor: 'end',
+                            align: 'right',
+                            offset: 6,
+                            clamp: true,
+                            font: { weight: 'bold', size: 11 },
+                            color: '#000',
+                            formatter: function (value, context) {
+                                const datasetIndex = context.datasetIndex;
+                                const dataIndex = context.dataIndex;
+                                return namesByRank[datasetIndex][dataIndex] || ' ';
+                            }
+                        },
+                        tooltip: {
+                            mode: 'nearest',
+                            axis: 'y',
+                            intersect: true,
+                            callbacks: {
+                                label: function (context) {
+                                    const datasetIndex = context.datasetIndex;
+                                    const dataIndex = context.dataIndex;
+                                    const value = context.parsed.x;
+                                    const name = namesByRank[datasetIndex][dataIndex] || ' ';
+                                    return `${context.dataset.label} - ${name}: ${value}%`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: dynamicMaxPct,
+                            ticks: {
+                                callback: function (value) {
+                                    return value + '%';
+                                }
+                            },
+                            title: { display: true, text: '비율 (%)' }
+                        },
+                        y: { ticks: { autoSkip: false } }
                     }
                 }
             });
