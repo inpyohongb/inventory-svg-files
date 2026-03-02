@@ -681,7 +681,7 @@ def get_zone_statistics():
     for item in data:
         zone = (item.get('존') or item.get('ZONE') or item.get('zone') or '').strip() or '미지정'
         if zone not in zones:
-            zones[zone] = {'avgSalesSum': 0.0, 'skuSet': set(), 'unitSum': 0.0, 'categoryCounts': {}}
+            zones[zone] = {'avgSalesSum': 0.0, 'skuSet': set(), 'unitSum': 0.0, 'categoryCounts': {}, 'supplierCounts': {}}
 
         z = zones[zone]
         z['avgSalesSum'] += parse_number_py(item.get('평균판매량') or item.get('평균 판매량') or item.get('L') or 0)
@@ -691,6 +691,8 @@ def get_zone_statistics():
         z['unitSum'] += parse_number_py(item.get('재고') or item.get('K') or 0)
         cat = (item.get('카테고리') or item.get('category') or item.get('G') or '').strip() or '미분류'
         z['categoryCounts'][cat] = z['categoryCounts'].get(cat, 0) + 1
+        supplier = (item.get('공급사명') or item.get('supplierName') or '').strip() or '미지정'
+        z['supplierCounts'][supplier] = z['supplierCounts'].get(supplier, 0) + 1
 
     # convert sets to counts and format
     result = {}
@@ -699,7 +701,8 @@ def get_zone_statistics():
             'avgSalesSum': round(info['avgSalesSum'], 2),
             'SKU': len(info['skuSet']),
             'UNIT': round(info['unitSum'], 2),
-            'categoryCounts': info['categoryCounts']
+            'categoryCounts': info['categoryCounts'],
+            'supplierCounts': info['supplierCounts']
         }
 
     # include last update times for visibility
