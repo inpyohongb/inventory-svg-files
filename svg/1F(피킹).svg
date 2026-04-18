@@ -279,7 +279,6 @@
   <rect x="575" y="345" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-F3-3-1" class="cell"/>
   <rect x="216" y="356" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-A0-5-1" class="cell"/>
   <rect x="305" y="356" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-A0-12-1" class="cell"/>
-  <rect x="387" y="356" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-C1-15-1" class="cell"/>
   <rect x="398" y="356" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-D1-18-1" class="cell"/>
   <rect x="423" y="356" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-D1-17-1" class="cell"/>
   <rect x="434" y="356" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-E1-18-1" class="cell"/>
@@ -291,22 +290,18 @@
   <rect x="575" y="356" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-F3-1-1" class="cell"/>
   <rect x="216" y="367" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-A0-5-1" class="cell"/>
   <rect x="305" y="367" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-A0-12-1" class="cell"/>
-  <rect x="387" y="367" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-C1-16-1" class="cell"/>
   <rect x="398" y="367" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-D1-16-1" class="cell"/>
   <rect x="423" y="367" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-D1-15-1" class="cell"/>
   <rect x="434" y="367" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-E1-16-1" class="cell"/>
   <rect x="459" y="367" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-E1-15-1" class="cell"/>
-  <rect x="539" y="367" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-F2-32-1" class="cell"/>
   <rect x="216" y="378" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-A0-5-1" class="cell"/>
   <rect x="305" y="378" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-A0-12-1" class="cell"/>
   <rect x="331" y="378" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-A1-1-1" class="cell"/>
-  <rect x="387" y="378" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-C1-17-1" class="cell"/>
   <rect x="398" y="378" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-D1-14-1" class="cell"/>
   <rect x="423" y="378" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-D1-13-1" class="cell"/>
   <rect x="434" y="378" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-E1-14-1" class="cell"/>
   <rect x="459" y="378" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-E1-13-1" class="cell"/>
   <rect x="331" y="389" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-A1-2-1" class="cell"/>
-  <rect x="387" y="389" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-A1-14-1" class="cell"/>
   <rect x="398" y="389" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-D1-12-1" class="cell"/>
   <rect x="423" y="389" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-D1-11-1" class="cell"/>
   <rect x="434" y="389" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-E1-12-1" class="cell"/>
@@ -314,7 +309,6 @@
   <rect x="216" y="400" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-A0-4-1" class="cell"/>
   <rect x="305" y="400" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-A0-11-1" class="cell"/>
   <rect x="331" y="400" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-A1-3-1" class="cell"/>
-  <rect x="387" y="400" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-A1-13-1" class="cell"/>
   <rect x="398" y="400" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-D1-10-1" class="cell"/>
   <rect x="423" y="400" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-D1-9-1" class="cell"/>
   <rect x="434" y="400" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-E1-10-1" class="cell"/>
@@ -322,24 +316,20 @@
   <rect x="216" y="411" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-A0-4-1" class="cell"/>
   <rect x="305" y="411" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-A0-11-1" class="cell"/>
   <rect x="331" y="411" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-A1-4-1" class="cell"/>
-  <rect x="387" y="411" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-A1-12-1" class="cell"/>
   <rect x="423" y="411" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-D1-7-1" class="cell"/>
   <rect x="434" y="411" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-E1-8-1" class="cell"/>
   <rect x="459" y="411" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-E1-7-1" class="cell"/>
   <rect x="216" y="422" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-A0-4-1" class="cell"/>
   <rect x="305" y="422" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-A0-11-1" class="cell"/>
   <rect x="331" y="422" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-A1-5-1" class="cell"/>
-  <rect x="387" y="422" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-A1-11-1" class="cell"/>
   <rect x="398" y="422" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-D1-6-1" class="cell"/>
   <rect x="423" y="422" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-D1-5-1" class="cell"/>
   <rect x="434" y="422" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-E1-6-1" class="cell"/>
   <rect x="459" y="422" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-E1-5-1" class="cell"/>
-  <rect x="387" y="433" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-A1-10-1" class="cell"/>
   <rect x="398" y="433" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-D1-4-1" class="cell"/>
   <rect x="423" y="433" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-D1-3-1" class="cell"/>
   <rect x="434" y="433" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-E1-4-1" class="cell"/>
   <rect x="459" y="433" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-E1-3-1" class="cell"/>
-  <rect x="387" y="444" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-A1-9-1" class="cell"/>
   <rect x="398" y="444" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-D1-2-1" class="cell"/>
   <rect x="423" y="444" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-D1-1-1" class="cell"/>
   <rect x="434" y="444" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="1F-E1-2-1" class="cell"/>
