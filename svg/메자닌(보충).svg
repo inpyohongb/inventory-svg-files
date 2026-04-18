@@ -77,8 +77,6 @@
   <line x1="705" y1="91" x2="716" y2="102" class="diagonal-line"/>
   <rect x="734" y="91" width="11" height="11" data-value="2F-R3-2-1" class="cell 피킹"/>
   <line x1="734" y1="91" x2="745" y2="102" class="diagonal-line"/>
-  <rect x="745" y="91" width="11" height="11" data-value="2F-R4-34-1" class="cell 피킹"/>
-  <line x1="745" y1="91" x2="756" y2="102" class="diagonal-line"/>
   <rect x="774" y="91" width="11" height="11" data-value="2F-R4-35-1" class="cell 피킹"/>
   <line x1="774" y1="91" x2="785" y2="102" class="diagonal-line"/>
   <rect x="785" y="91" width="11" height="11" data-value="2F-R5-1-1" class="cell 피킹"/>
