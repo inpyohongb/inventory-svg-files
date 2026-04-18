@@ -1,14 +1,5 @@
 <?xml version="1.0" ?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="-1 -1 1314 688" preserveAspectRatio="xMidYMid meet">
-  <rect x="396" y="22" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-Z1-5-1" class="cell"/>
-  <rect x="396" y="33" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-Z1-4-1" class="cell"/>
-  <rect x="396" y="44" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-Z1-3-1" class="cell"/>
-  <rect x="396" y="55" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-Z1-2-1" class="cell"/>
-  <rect x="396" y="66" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-Z1-1-1" class="cell"/>
-  <rect x="346" y="72" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-ZD1-1-1" class="cell"/>
-  <rect x="357" y="72" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-ZE1-1-1" class="cell"/>
-  <rect x="368" y="72" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-ZF1-1-1" class="cell"/>
-  <rect x="379" y="72" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-ZG1-1-1" class="cell"/>
   <rect x="502" y="95" width="12" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-D2-89-1" class="cell"/>
   <rect x="745" y="96" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-H0-1-1" class="cell"/>
   <rect x="756" y="96" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-H0-2-1" class="cell"/>
@@ -377,7 +368,7 @@
   <rect x="559" y="260" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-K3-12-1" class="cell"/>
   <rect x="240" y="261" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-C1-11-1" class="cell"/>
   <rect x="251" y="261" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-C1-11-1" class="cell"/>
-  <rect x="938" y="262" width="15" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-F2-55-1" class="cell"/>
+  <rect x="938" y="262" width="15" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-F2-56-1" class="cell"/>
   <rect x="953" y="262" width="15" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-G1-1-1" class="cell"/>
   <rect x="867" y="264" width="6" height="5" fill="white" stroke="black" stroke-width="0.5" data-value="2F-F1-2-103" class="cell"/>
   <rect x="873" y="264" width="6" height="5" fill="white" stroke="black" stroke-width="0.5" data-value="2F-F1-2-102" class="cell"/>
@@ -427,6 +418,7 @@
   <rect x="1084" y="271" width="10" height="13" fill="white" stroke="black" stroke-width="0.5" data-value="2F-G4-2-101" class="cell"/>
   <rect x="240" y="272" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-C1-12-1" class="cell"/>
   <rect x="251" y="272" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-C1-12-1" class="cell"/>
+  <rect x="938" y="273" width="15" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-F2-55-1" class="cell"/>
   <rect x="953" y="273" width="15" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-G1-2-1" class="cell"/>
   <rect x="666" y="274" width="15" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-K1-38-1" class="cell"/>
   <rect x="867" y="274" width="6" height="5" fill="white" stroke="black" stroke-width="0.5" data-value="2F-F1-2-303" class="cell"/>
