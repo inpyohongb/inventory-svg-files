@@ -2248,10 +2248,7 @@
                     return 'H';
                 } else if (zoneCode === 'E99') {
                     // E99를 별도의 존으로 처리
-                    return 'E99';
-                } else if (zoneCode.startsWith('E')) {
-                    // 나머지 E로 시작하는 경우는 E로 묶음
-                    return 'E';   
+                    return 'E99'; 
                 } else if (zoneCode.startsWith('Z')) {
                     // 나머지 E로 시작하는 경우는 E로 묶음
                     return 'Z';      
