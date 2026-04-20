@@ -1,7 +1,6 @@
 <?xml version="1.0" ?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="-1 -1 1314 688" preserveAspectRatio="xMidYMid meet">
   <rect x="502" y="84" width="12" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-D2-99-1" class="cell"/>
-  <rect x="578" y="88" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-D3-2-1" class="cell"/>
   <rect x="502" y="95" width="12" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-D2-97-1" class="cell"/>
   <rect x="745" y="96" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-H0-1-1" class="cell"/>
   <rect x="756" y="96" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-H0-2-1" class="cell"/>
@@ -10,9 +9,7 @@
   <rect x="789" y="96" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-H0-5-1" class="cell"/>
   <rect x="800" y="96" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-H0-6-1" class="cell"/>
   <rect x="811" y="96" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-H0-7-1" class="cell"/>
-  <rect x="578" y="99" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-D3-4-1" class="cell"/>
   <rect x="502" y="106" width="12" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-D2-95-1" class="cell"/>
-  <rect x="578" y="110" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-D3-6-1" class="cell"/>
   <rect x="291" y="117" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-C1-47-1" class="cell"/>
   <rect x="302" y="117" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-C2-1-1" class="cell"/>
   <rect x="346" y="117" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-C3-52-1" class="cell"/>
@@ -23,7 +20,6 @@
   <rect x="789" y="117" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-H0-10-1" class="cell"/>
   <rect x="800" y="117" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-H0-9-1" class="cell"/>
   <rect x="811" y="117" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-H0-8-1" class="cell"/>
-  <rect x="578" y="121" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-D3-8-1" class="cell"/>
   <rect x="376" y="122" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-C3-51-1" class="cell"/>
   <rect x="387" y="122" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-D4-48-1" class="cell"/>
   <rect x="417" y="122" width="11" height="11" fill="white" stroke="black" stroke-width="0.5" data-value="2F-D4-47-1" class="cell"/>
