@@ -25,8 +25,6 @@
   <line x1="874" y1="96" x2="885" y2="107" class="diagonal-line"/>
   <rect x="554" y="106" width="9" height="11" data-value="2F-D2-95-1" class="cell 피킹"/>
   <line x1="554" y1="106" x2="563" y2="117" class="diagonal-line"/>
-  <rect x="369" y="117" width="9" height="11" data-value="2F-C1-47-1" class="cell 피킹"/>
-  <line x1="369" y1="117" x2="378" y2="128" class="diagonal-line"/>
   <rect x="378" y="117" width="9" height="11" data-value="2F-C2-1-1" class="cell 피킹"/>
   <line x1="378" y1="117" x2="387" y2="128" class="diagonal-line"/>
   <rect x="414" y="117" width="9" height="11" data-value="2F-C3-52-1" class="cell 피킹"/>
@@ -53,8 +51,6 @@
   <line x1="477" y1="122" x2="486" y2="133" class="diagonal-line"/>
   <rect x="486" y="122" width="9" height="11" data-value="2F-D3-1-1" class="cell 피킹"/>
   <line x1="486" y1="122" x2="495" y2="133" class="diagonal-line"/>
-  <rect x="369" y="128" width="9" height="11" data-value="2F-C1-46-1" class="cell 피킹"/>
-  <line x1="369" y1="128" x2="378" y2="139" class="diagonal-line"/>
   <rect x="378" y="128" width="9" height="11" data-value="2F-C2-3-1" class="cell 피킹"/>
   <line x1="378" y1="128" x2="387" y2="139" class="diagonal-line"/>
   <rect x="405" y="128" width="9" height="11" data-value="2F-C2-2-1" class="cell 피킹"/>
@@ -307,8 +303,6 @@
   <line x1="594" y1="194" x2="603" y2="205" class="diagonal-line"/>
   <rect x="603" y="194" width="9" height="11" data-value="2F-K3-18-1" class="cell 피킹"/>
   <line x1="603" y1="194" x2="612" y2="205" class="diagonal-line"/>
-  <rect x="333" y="199" width="9" height="11" data-value="2F-C1-6-1" class="cell 피킹"/>
-  <line x1="333" y1="199" x2="342" y2="210" class="diagonal-line"/>
   <rect x="440" y="199" width="9" height="11" data-value="2F-C3-37-1" class="cell 피킹"/>
   <line x1="440" y1="199" x2="449" y2="210" class="diagonal-line"/>
   <rect x="449" y="199" width="9" height="11" data-value="2F-D4-34-1" class="cell 피킹"/>
@@ -971,8 +965,6 @@
   <line x1="563" y1="304" x2="572" y2="315" class="diagonal-line"/>
   <rect x="957" y="304" width="6" height="4" data-value="2F-F1-2-4" class="cell 피킹"/>
   <line x1="957" y1="304" x2="963" y2="308" class="diagonal-line"/>
-  <rect x="333" y="305" width="9" height="11" data-value="2F-C1-15-1" class="cell 피킹"/>
-  <line x1="333" y1="305" x2="342" y2="316" class="diagonal-line"/>
   <rect x="628" y="305" width="24" height="11" data-value="2F-K3-7-1" class="cell 피킹"/>
   <line x1="628" y1="305" x2="652" y2="316" class="diagonal-line"/>
   <rect x="652" y="305" width="24" height="11" data-value="2F-K2-8-1" class="cell 피킹"/>
@@ -3926,10 +3918,6 @@
   <line x1="957" y1="616" x2="963" y2="620" class="diagonal-line"/>
   <rect x="957" y="620" width="6" height="5" data-value="2F-F1-17-1" class="cell 피킹"/>
   <line x1="957" y1="620" x2="963" y2="625" class="diagonal-line"/>
-  <rect x="329" y="622" width="9" height="11" data-value="2F-BA1-4-1" class="cell 피킹"/>
-  <line x1="329" y1="622" x2="338" y2="633" class="diagonal-line"/>
-  <rect x="338" y="622" width="9" height="11" data-value="2F-BA1-4-1" class="cell 피킹"/>
-  <line x1="338" y1="622" x2="347" y2="633" class="diagonal-line"/>
   <rect x="487" y="622" width="9" height="11" data-value="2F-D99-4-1" class="cell 보충"/>
   <rect x="813" y="623" width="6" height="13" data-value="2F-EA3-26-1" class="cell 피킹"/>
   <line x1="813" y1="623" x2="819" y2="636" class="diagonal-line"/>
@@ -4127,10 +4115,6 @@
   <line x1="452" y1="643" x2="456" y2="648" class="diagonal-line"/>
   <rect x="456" y="643" width="4" height="5" data-value="2F-BB2-38-103" class="cell 피킹"/>
   <line x1="456" y1="643" x2="460" y2="648" class="diagonal-line"/>
-  <rect x="329" y="644" width="9" height="11" data-value="2F-BA1-2-1" class="cell 피킹"/>
-  <line x1="329" y1="644" x2="338" y2="655" class="diagonal-line"/>
-  <rect x="338" y="644" width="9" height="11" data-value="2F-BA1-2-1" class="cell 피킹"/>
-  <line x1="338" y1="644" x2="347" y2="655" class="diagonal-line"/>
   <rect x="487" y="644" width="9" height="11" data-value="2F-D99-2-1" class="cell 보충"/>
   <rect x="957" y="644" width="6" height="5" data-value="2F-F1-18-2" class="cell 피킹"/>
   <line x1="957" y1="644" x2="963" y2="649" class="diagonal-line"/>
@@ -4242,10 +4226,6 @@
   <line x1="456" y1="653" x2="460" y2="658" class="diagonal-line"/>
   <rect x="957" y="654" width="6" height="4" data-value="2F-F1-18-4" class="cell 피킹"/>
   <line x1="957" y1="654" x2="963" y2="658" class="diagonal-line"/>
-  <rect x="329" y="655" width="9" height="11" data-value="2F-BA1-1-1" class="cell 피킹"/>
-  <line x1="329" y1="655" x2="338" y2="666" class="diagonal-line"/>
-  <rect x="338" y="655" width="9" height="11" data-value="2F-BA1-1-1" class="cell 피킹"/>
-  <line x1="338" y1="655" x2="347" y2="666" class="diagonal-line"/>
   <rect x="487" y="655" width="9" height="11" data-value="2F-D99-1-1" class="cell 보충"/>
   <rect x="425" y="658" width="4" height="5" data-value="2F-BB2-43-103" class="cell 피킹"/>
   <line x1="425" y1="658" x2="429" y2="663" class="diagonal-line"/>
