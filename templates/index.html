@@ -208,6 +208,7 @@
             <button onclick="logout()">로그아웃</button>
         </div>
     </div>
+
 </body>
 </html>
     <div id="imagePopup" class="image-popup"></div>
@@ -233,6 +234,8 @@
         let activeSupplyCycleFilter = 'none';
         let activeWeightFilter = 'none';
         let activeKeepTypeFilter = 'none';
+        let activeSkuCountFilter = false; // "지번당 SKU" 필터 활성 여부
+        let zoneProductCounts = {}; // 지번별 상품 가짓수(SKU) 저장 객체
         let popupHideTimeout;
         let activePopups = [];
         let searchResults = [];
@@ -249,11 +252,11 @@
                 case "메자닌(피킹)":
                     return 0.63;
                 case "메자닌(보충)":
-                    return 0.95;
+                    return 0.63;
                 case "1F(피킹)":
                     return 0.45;
                 case "1F(보충)":
-                    return 0.38;         
+                    return 0.45;         
                 default:
                     return 0.5; // 기본값
             }
@@ -283,6 +286,7 @@
         function setupEventListeners() {
             const svgContainer = document.getElementById('svgContainer');
             const svg = document.querySelector('svg');
+            if (!svg || !svgContainer) return; // SVG가 없으면 리스너 등록하지 않음
             svgContainer.addEventListener('mousedown', startDrag);
             svgContainer.addEventListener('mousemove', drag);
             svgContainer.addEventListener('mouseup', endDrag);
@@ -1907,6 +1911,13 @@
             const svgDoc = document.querySelector("#svgContainer svg");
             if (!svgDoc) return;
 
+            // "지번당 SKU" 필터가 활성화된 경우, 다른 필터보다 우선하여 SKU 색상을 적용
+            if (activeSkuCountFilter) {
+                applySkuCountFilter();
+                updateResultCount();
+                return;
+            }
+
             svgDoc.querySelectorAll('.cell').forEach(cell => {
                 if (cell.inventoryData) {
                     updateElementColor(cell, cell.inventoryData);
@@ -2198,6 +2209,61 @@
             return [...new Set(weights.map(getWeightColor))];
         }
 
+        // 지번당 SKU(상품 가짓수)에 따른 색상 반환 함수
+        function getSkuCountColor(count) {
+            if (!count || count === 0) return "white";
+            if (count === 1) return "blue";
+            if (count === 2) return "green";
+            if (count === 3) return "orange";
+            if (count === 4) return "yellow";
+            return "red"; // 5 이상
+        }
+
+        // 지번별 상품 가짓수(SKU) 계산 함수
+        // 구글시트 J열 "지번명" 기준으로 그룹화하고, D열 "상품코드"의 고유 개수를 센다
+        function calculateZoneProductCounts() {
+            const skuSets = {};
+            inventoryData.forEach(item => {
+                const location = item['지번명'] || item['지번'];
+                const goodsCode = item['상품코드'];
+                if (!location || !goodsCode) return;
+                if (!skuSets[location]) {
+                    skuSets[location] = new Set();
+                }
+                skuSets[location].add(goodsCode);
+            });
+
+            zoneProductCounts = {};
+            Object.keys(skuSets).forEach(location => {
+                zoneProductCounts[location] = skuSets[location].size;
+            });
+
+            return zoneProductCounts;
+        }
+
+        // "지번당 SKU" 필터를 SVG 셀 색상에 적용하는 함수
+        function applySkuCountFilter() {
+            const svg = document.querySelector('#svgContainer svg');
+            if (!svg) return;
+
+            svg.querySelectorAll('.cell').forEach(cell => {
+                const location = cell.getAttribute('data-value');
+                const count = zoneProductCounts[location] || 0;
+                cell.style.fill = getSkuCountColor(count);
+            });
+        }
+
+        // "지번당 SKU" 필터 체크박스 변경 핸들러
+        function handleSkuCountFilterChange() {
+            activeSkuCountFilter = document.getElementById("skuCountFilterToggle").checked;
+            if (activeSkuCountFilter) {
+                calculateZoneProductCounts();
+                applySkuCountFilter();
+            } else {
+                applyFilters();
+            }
+        }
+
         function createPatternFill(element, colors) {
             const svgns = "http://www.w3.org/2000/svg";
             const patternId = `pattern-${colors.join('-')}`;
@@ -2248,7 +2314,7 @@
                     return 'H';
                 } else if (zoneCode === 'E99') {
                     // E99를 별도의 존으로 처리
-                    return 'E99'; 
+                    return 'E99';  
                 } else if (zoneCode.startsWith('Z')) {
                     // 나머지 E로 시작하는 경우는 E로 묶음
                     return 'Z';      
@@ -2376,6 +2442,7 @@
                     loadInventoryData().then(() => {
                         linkInventoryToSVG();
                         initializeCellColors();
+                        calculateZoneProductCounts(); // 지번별 상품 가짓수 계산
                     });
                 });
         }
@@ -2422,6 +2489,10 @@
             document.getElementById('salesMethodSelect').addEventListener('change', handleSalesMethodFilterChange);
             document.getElementById('weightSelect').addEventListener('change', handleWeightFilterChange);
             document.getElementById('keepTypeSelect').addEventListener('change', handleKeepTypeFilterChange);
+            const skuCountFilterToggle = document.getElementById('skuCountFilterToggle');
+            if (skuCountFilterToggle) {
+                skuCountFilterToggle.addEventListener('change', handleSkuCountFilterChange);
+            }
             document.getElementById('searchDropdown').addEventListener('change', () => {
                 document.getElementById('searchInput').value = '';
                 search();
@@ -2446,10 +2517,50 @@
             activeSupplyCycleFilter = 'none';
             activeWeightFilter = 'none';
             activeKeepTypeFilter = 'none';
+            activeSkuCountFilter = false;
             setupEventListeners();
             updateResultCount();
+            
+            // 토글 버튼 이벤트 등록
+            const toggleBtn = document.getElementById('toggleBtn');
+            const slidePanel = document.getElementById('slidePanel');
+            
+            if (toggleBtn && slidePanel) {
+                toggleBtn.addEventListener('click', () => {
+                    slidePanel.classList.toggle('open');
+                    toggleBtn.style.transform = slidePanel.classList.contains('open') 
+                        ? 'rotate(180deg)' 
+                        : 'rotate(0deg)';
+                });
+            }
         });
 
     </script>
+    
+    <!-- 토글 버튼 -->
+    <button id="toggleBtn" class="toggle-btn">▶</button>
+    
+    <!-- 우측 슬라이드 패널 -->
+    <div id="slidePanel" class="slide-panel">
+        <div class="panel-content">
+            <h3>필터</h3>
+            <div class="filter-container">
+                <label class="filter-title" for="skuCountFilterToggle" style="display:flex; align-items:center; gap:6px; cursor:pointer;">
+                    <input type="checkbox" id="skuCountFilterToggle">
+                    지번당 SKU
+                </label>
+            </div>
+            <div class="legend-section" id="skuCountLegend">
+                <h5>지번당 SKU</h5>
+                <div class="legend-item"><span class="color-box" style="background-color: white; border: 1px solid #999;"></span> SKU 0</div>
+                <div class="legend-item"><span class="color-box" style="background-color: blue;"></span> SKU 1</div>
+                <div class="legend-item"><span class="color-box" style="background-color: green;"></span> SKU 2</div>
+                <div class="legend-item"><span class="color-box" style="background-color: orange;"></span> SKU 3</div>
+                <div class="legend-item"><span class="color-box" style="background-color: yellow;"></span> SKU 4</div>
+                <div class="legend-item"><span class="color-box" style="background-color: red;"></span> SKU 5 이상</div>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
