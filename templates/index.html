@@ -347,11 +347,13 @@
             if (sheet === 'Summary') {
                 if (controls) controls.style.display = 'none';
                 document.getElementById('svgContainer').style.display = 'none';
+                document.getElementById('toggleBtn').style.display = 'none'; 
                 document.getElementById('summaryDashboard').style.display = 'block';
                 loadSummaryDashboard();
             } else {
                 if (controls) controls.style.display = 'block';
                 document.getElementById('svgContainer').style.display = 'block';
+                document.getElementById('toggleBtn').style.display = 'block';
                 document.getElementById('summaryDashboard').style.display = 'none';
                 currentScale = getInitialScale(sheet);
                 const position = getInitialPosition(sheet);
@@ -2470,9 +2472,13 @@
             const controls = document.getElementById('controls');
             const svgContainer = document.getElementById('svgContainer');
             const summaryDashboard = document.getElementById('summaryDashboard');
+            const toggleBtn = document.getElementById('toggleBtn');
+            const slidePanel = document.getElementById('slidePanel');
+
             if (currentSheet === 'Summary') {
                 if (controls) controls.style.display = 'none';
                 if (svgContainer) svgContainer.style.display = 'none';
+                if (toggleBtn) toggleBtn.style.display = 'none';
                 if (summaryDashboard) {
                     summaryDashboard.style.display = 'block';
                     loadSummaryDashboard();
@@ -2480,6 +2486,7 @@
             } else {
                 if (controls) controls.style.display = 'block';
                 if (svgContainer) svgContainer.style.display = 'block';
+                if (toggleBtn) toggleBtn.style.display = 'block';
                 if (summaryDashboard) summaryDashboard.style.display = 'none';
                 loadSVGWithZones(currentSheet);
             }
@@ -2522,8 +2529,6 @@
             updateResultCount();
             
             // 토글 버튼 이벤트 등록
-            const toggleBtn = document.getElementById('toggleBtn');
-            const slidePanel = document.getElementById('slidePanel');
             
             if (toggleBtn && slidePanel) {
                 toggleBtn.addEventListener('click', () => {
@@ -2543,7 +2548,7 @@
     <!-- 우측 슬라이드 패널 -->
     <div id="slidePanel" class="slide-panel">
         <div class="panel-content">
-            <h3>필터</h3>
+            <h3>지번 필터</h3>
             <div class="filter-container">
                 <label class="filter-title" for="skuCountFilterToggle" style="display:flex; align-items:center; gap:6px; cursor:pointer;">
                     <input type="checkbox" id="skuCountFilterToggle">
