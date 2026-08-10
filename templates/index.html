@@ -737,7 +737,7 @@
 
         // 사용자 정의 존 정렬 순서
         function sortLabelsByOrder(labels) {
-            const order = ['1F','2FA','2FM','2FI','2FBA','2FBB','2FC','2FD','2FE','2FEA','2FK','2FF','2FL','2FG','2FO','2FP','2FR','2FS'];
+            const order = ['1F','2FA','2FM','2FI','2FBA','2FBB','2FCA','2FC','2FD','2FE','2FEA','2FK','2FF','2FL','2FG','2FO','2FP','2FR','2FS'];
             const maxIndex = order.length;
             // assign index for each label: first matching order item by exact or startsWith
             const indexed = labels.map(l => {
@@ -940,7 +940,7 @@
 
             // 표시할 존만 필터링
             const allowedZones = [
-                '2FA', '2FBA', '2FBB', '2FC', '2FD', '2FEA', '2FE',
+                '2FA', '2FBA', '2FBB', '2FCA', '2FC', '2FD', '2FEA', '2FE',
                 '2FK', '2FF', '2FL', '2FG', '2FO', '2FP', '2FR', '2FS'
             ];
             const labels = sortLabelsByOrder(Object.keys(zone_stats))
@@ -1119,7 +1119,7 @@
             const zoneGroupMap = {
                 '1F': '1F',
                 '2FA': '1조', '2FM': '1조', '2FI': '1조', '2FBA': '1조', '2FBB': '1조',
-                '2FC': '2조', '2FD': '2조',
+                '2FCA': '2조', '2FC': '2조', '2FD': '2조',
                 '2FE(B)': '3조', '2FEA': '3조', '2FK': '3조',
                 '2FF': '4조', '2FL': '4조', '2FG': '4조', '2FH': '4조',
                 '2FO': '5조', '2FP': '5조', '2FR': '5조', '2FZ(S)': '5조'
