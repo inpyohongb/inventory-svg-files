@@ -2302,8 +2302,8 @@
                 if (zoneCode.startsWith('I')) {
                     // I0과 I1을 별도의 존으로 처리
                     return zoneCode.length > 1 ? zoneCode.substring(0, 2) : zoneCode;
-                } else if (zoneCode === 'D98' || zoneCode === 'D99') {
-                    // D98과 D99를 별도의 존으로 처리
+                } else if (zoneCode === 'D98' || zoneCode === 'D99' || zoneCode === 'D97') {
+                    // D97, D98, D99를 별도의 존으로 처리
                     return zoneCode;
                 } else if (zoneCode.startsWith('D')) {
                     // 나머지 D로 시작하는 경우는 D로 묶음
