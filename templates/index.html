@@ -1,0 +1,2307 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>냉장 도면</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}?v={{ range(1, 10000) | random }}">
+</head>
+<body>
+    <div id="container">
+        <div id="controls">
+            <div class="controls-bottom">
+                <div id="filters">
+                    <div class="filters-row">
+                        <div class="filter-container">
+                            <div class="filter-title">입고주기</div>
+                            <select id="restockCycleSelect">
+                                <option value="none" selected>선택 안함</option>
+                                <option value="all">전체</option>
+                                <option value="supershort">초단기 (3일 이하)</option>
+                                <option value="short">단기 (3-7일)</option>
+                                <option value="week">1-2주 (8-14일)</option>
+                                <option value="month">2-4주 (15-30일)</option>
+                                <option value="long">장기 (30일 초과)</option>
+                            </select>
+                        </div>
+                        <div class="filter-container">
+                            <div class="filter-title">평균판매량</div>
+                            <select id="avgSalesSelect">
+                                <option value="none" selected>선택 안함</option>
+                                <option value="all">전체</option>
+                                <option value="low">저판매 (10개 이하)</option>
+                                <option value="medium">중판매 (11-100개)</option>
+                                <option value="high">고판매 (100개 초과)</option>
+                            </select>
+                        </div>
+                        <div class="filter-container">
+                            <div class="filter-title">보관유형</div>
+                            <select id="keepTypeSelect">
+                                <option value="none" selected>선택 안함</option>
+                                <option value="all">전체</option>
+                                <option value="room">상온</option>
+                                <option value="cold">냉장</option>
+                                <option value="frozen">냉동</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="filters-row">
+                        <div class="filter-container">
+                            <div class="filter-title">보충주기</div>
+                            <select id="supplyCycleSelect">
+                                <option value="none" selected>선택 안함</option>
+                                <option value="all">전체</option>
+                                <option value="not">보충X</option>
+                                <option value="less1day">고보충 (1일 미만)</option>
+                                <option value="2day">중보충 (1일~2일)</option>
+                                <option value="more2day">저보충 (2일 이상)</option>
+                            </select>
+                        </div>
+                        <div class="filter-container">
+                            <div class="filter-title">중량</div>
+                            <select id="weightSelect">
+                                <option value="none" selected>선택 안함</option>
+                                <option value="all">전체</option>
+                                <option value="less500">500g 이하</option>
+                                <option value="500n1kg">500g ~ 1kg</option>
+                                <option value="more1kg">1kg 이상</option>
+                            </select>
+                        </div>
+                        <div class="filter-container">
+                            <div class="filter-title">판매방법</div>
+                            <select id="salesMethodSelect">
+                                <option value="none" selected>선택 안함</option>
+                                <option value="all">전체</option>
+                                <option value="pre">선판매</option>
+                                <option value="post">후판매</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div id="searchSection">
+                    <div>
+                        <span class="section-title">검색어 구분</span>
+                        <select id="searchDropdown">
+                            <option value="location">지번명</option>
+                            <option value="supplierCode">공급사코드</option>
+                            <option value="supplierName">공급사명</option>
+                            <option value="goodsCode">상품코드</option>
+                            <option value="goodsName">상품명</option>
+                            <option value="category">카테고리</option>
+                        </select>
+                    </div>
+                    <div>
+                        <span class="section-title">검색어</span>
+                        <input type="text" id="searchInput" placeholder="검색어를 입력하세요...">
+                    </div>
+                    <div class="search-controls">
+                        <button onclick="search()">검색</button>
+                        <button onclick="resetSearch()">초기화</button>
+                    </div>
+                    <div id="searchResultCount" style="margin-left: 10px;"></div>
+                </div>
+                <div class="stats-container">
+                    <div class="total-sku">전체 sku: <span id="skuCount">0</span></div>
+                    <div class="last-update-time" id="lastUpdateTime"></div>
+                </div>
+                <div id="filterLegend">
+                    <div class="legend-container">
+                        <div class="legend-section">
+                            <h5>입고주기</h5>
+                            <div class="legend-item"><span class="color-box" style="background-color: blue;"></span> 3일 이하</div>
+                            <div class="legend-item"><span class="color-box" style="background-color: green;"></span> 3-7일</div>
+                            <div class="legend-item"><span class="color-box" style="background-color: orange;"></span> 8-14일</div>
+                            <div class="legend-item"><span class="color-box" style="background-color: yellow;"></span> 15-30일</div>
+                            <div class="legend-item"><span class="color-box" style="background-color: red;"></span> 30일 초과</div>
+                        </div>
+                        <div class="legend-section">
+                            <h5>판매량</h5>
+                            <div class="legend-item"><span class="color-box" style="background-color: red;"></span> 10 이하</div>
+                            <div class="legend-item"><span class="color-box" style="background-color: yellow;"></span> 11-100</div>
+                            <div class="legend-item"><span class="color-box" style="background-color: green;"></span> 100 초과</div>
+                        </div>
+                        <div class="legend-section">
+                            <h5>판매방법</h5>
+                            <div class="legend-item"><span class="color-box" style="background-color: red;"></span> 선판매</div>
+                            <div class="legend-item"><span class="color-box" style="background-color: blue;"></span> 후판매</div>
+                        </div>
+                        <div class="legend-section">
+                            <h5>보충주기</h5>
+                            <div class="legend-item"><span class="color-box" style="background-color: gray;"></span> 보충X</div>
+                            <div class="legend-item"><span class="color-box" style="background-color: green;"></span> 1일 미만</div>
+                            <div class="legend-item"><span class="color-box" style="background-color: yellow;"></span> 1일-2일</div>
+                            <div class="legend-item"><span class="color-box" style="background-color: red;"></span> 2일 이상</div>
+                        </div>
+                        <div class="legend-section">
+                            <h5>중량</h5>
+                            <div class="legend-item"><span class="color-box" style="background-color: red;"></span> 500g 이하</div>
+                            <div class="legend-item"><span class="color-box" style="background-color: yellow;"></span> 500g~1kg</div>
+                            <div class="legend-item"><span class="color-box" style="background-color: green;"></span> 1kg 이상</div>
+                        </div>
+                        <div class="legend-section">
+                            <h5>보관유형</h5>
+                            <div class="legend-item"><span class="color-box" style="background-color: yellow;"></span> 상온</div>
+                            <div class="legend-item"><span class="color-box" style="background-color: green;"></span> 냉장</div>
+                            <div class="legend-item"><span class="color-box" style="background-color: blue;"></span> 냉동</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="svgContainer"></div>
+        <div id="summaryDashboard" style="display: none;">
+            <div class="summary-controls">
+                <h2>재고현황 Dashboard</h2>
+                <div class="summary-controls-buttons">
+                    <button type="button" class="summary-view-btn active" data-view="status">현황</button>
+                    <button type="button" class="summary-view-btn" data-view="trend">추이</button>
+                </div>
+            </div>
+            <div class="summary-container">
+                <div id="summaryViewStatus" class="summary-view-panel">
+                    <div style="display:flex; gap:16px; flex-wrap:wrap;">
+                        <div style="flex:1 1 45%; min-width:300px; max-width:800px;">
+                            <h3>평균 출고량</h3>
+                            <canvas id="chartAvgSales" style="width:100%; max-height:250px;"></canvas>
+                        </div>
+                        <div style="flex:1 1 45%; min-width:300px; max-width:900px; margin-left:auto;">
+                            <h3>SKU / UNIT</h3>
+                            <canvas id="chartSkuUnit" style="width:100%; max-height:250px;"></canvas>
+                        </div>
+                    </div>
+                    <div style="margin-top:20px;">
+                        <h3>카테고리 TOP3</h3>
+                        <div id="zoneCategoryCharts" style="display:flex; gap:12px; flex-wrap:wrap;"></div>
+                    </div>
+                    <div style="margin-top:20px;">
+                        <h3>공급사 TOP3</h3>
+                        <div id="zoneSupplierCharts" style="display:flex; gap:12px; flex-wrap:wrap; width:50%; max-width:800px;"></div>
+                    </div>
+                </div>
+                <div id="summaryViewTrend" class="summary-view-panel" style="display:none;">
+                    <div style="margin-top:0;">
+                        <h3>보유재고 추이</h3>
+                        <div id="skuTrendChartsContainer" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap:20px;"></div>
+                    </div>
+                    <div style="margin-top:20px;">
+                        <h3>배치생성률 추이</h3>
+                        <div id="batchGenTrendChartsContainer" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap:20px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="popup"></div>
+        <div id="tabSection">
+            <div id="tabs">
+                <div class="tab active" data-sheet="Summary">Summary</div>
+                <div class="tab" data-sheet="2F(피킹)">2F(피킹)</div>
+                <div class="tab" data-sheet="메자닌(피킹)">메자닌(피킹)</div>
+                <div class="tab" data-sheet="1F(피킹)">1F(피킹)</div>
+                <div class="tab" data-sheet="2F(보충)">2F(보충)</div>
+                <div class="tab" data-sheet="메자닌(보충)">메자닌(보충)</div>
+                <div class="tab" data-sheet="1F(보충)">1F(보충)</div>
+                <div class="tab" data-sheet="7F(보충)">7F(보충)</div>
+            </div>
+        </div>
+        <div id="logoutButton">
+            <button onclick="logout()">로그아웃</button>
+        </div>
+    </div>
+
+    <div id="imagePopup" class="image-popup"></div>
+    <div id="inventoryHistoryPopup" class="popup" style="display: none;"></div>
+    
+    <button id="toggleBtn" class="toggle-btn">▶</button>
+    
+    <div id="slidePanel" class="slide-panel">
+        <div class="panel-content">
+            <h3>지번 필터</h3>
+            <div class="filter-container">
+                <label class="filter-title" for="skuCountFilterToggle" style="display:flex; align-items:center; gap:6px; cursor:pointer;">
+                    <input type="checkbox" id="skuCountFilterToggle">
+                    지번당 SKU
+                </label>
+            </div>
+            <div class="legend-section" id="skuCountLegend">
+                <h5>지번당 SKU</h5>
+                <div class="legend-item"><span class="color-box" style="background-color: white; border: 1px solid #999;"></span> SKU 0</div>
+                <div class="legend-item"><span class="color-box" style="background-color: blue;"></span> SKU 1</div>
+                <div class="legend-item"><span class="color-box" style="background-color: green;"></span> SKU 2</div>
+                <div class="legend-item"><span class="color-box" style="background-color: orange;"></span> SKU 3</div>
+                <div class="legend-item"><span class="color-box" style="background-color: yellow;"></span> SKU 4</div>
+                <div class="legend-item"><span class="color-box" style="background-color: red;"></span> SKU 5 이상</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <script>
+        Chart.register(ChartDataLabels);
+        
+        let currentSheet = 'Summary';
+        let currentScale = getInitialScale(currentSheet);
+        let currentPositionX = getInitialPosition(currentSheet).x;
+        let currentPositionY = getInitialPosition(currentSheet).y;
+        let isDragging = false;
+        let startX, startY, svgX, svgY;
+        let inventoryData = [];
+        let activeFilter = null;
+        let activeRestockCycleFilter = 'none';
+        let activeAvgSalesFilter = 'none';
+        let activeSalesMethodFilter = 'none';
+        let activeSupplyCycleFilter = 'none';
+        let activeWeightFilter = 'none';
+        let activeKeepTypeFilter = 'none';
+        let activeSkuCountFilter = false; 
+        let zoneProductCounts = {}; 
+        let popupHideTimeout;
+        let activePopups = [];
+        let searchResults = [];
+        let resultCount = 0;
+        
+        function getInitialScale(sheet) {
+            switch(sheet) {
+                case "Summary":
+                    return 1.0; 
+                case "2F(피킹)":
+                    return 0.8;
+                case "2F(보충)":
+                case "7F(보충)":
+                    return 0.73;
+                case "메자닌(피킹)":
+                    return 0.63;
+                case "메자닌(보충)":
+                    return 0.63;
+                case "1F(피킹)":
+                    return 0.45;
+                case "1F(보충)":
+                    return 0.45;         
+                default:
+                    return 0.5; 
+            }
+        }
+
+        function getInitialPosition(sheet) {
+            switch(sheet) {
+                case "Summary":
+                    return { x: 0, y: 0 }; 
+                case "2F(피킹)":
+                case "2F(보충)":
+                case "7F(보충)":
+                case "메자닌(피킹)":
+                case "메자닌(보충)":
+                    return { x: 0, y: 0 }; 
+                case "1F(피킹)":
+                    return { x: 30, y: 30 }; 
+                case "1F(보충)":
+                    return { x: 100, y: 100 }; 
+                default:
+                    return { x: 0, y: 0 }; 
+            }
+        }
+
+        function setupEventListeners() {
+            const svgContainer = document.getElementById('svgContainer');
+            const svg = document.querySelector('svg');
+            if (!svg || !svgContainer) return; 
+            svgContainer.addEventListener('mousedown', startDrag);
+            svgContainer.addEventListener('mousemove', drag);
+            svgContainer.addEventListener('mouseup', endDrag);
+            svgContainer.addEventListener('mouseleave', endDrag);
+            svgContainer.addEventListener('wheel', handleWheel, { passive: false });
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach(cell => {
+                cell.addEventListener('mouseover', handleMouseOver);
+                cell.addEventListener('mouseout', handleMouseOut);
+                cell.addEventListener('click', handleCellClick);
+            });
+            document.addEventListener('click', closePopupOnOutsideClick);
+            svg.addEventListener('mousemove', handleSVGMouseMove);
+            svg.addEventListener('click', handleSVGClick);
+        }
+
+        function handleSVGMouseMove(e) {
+            const cell = getElementFromPoint(e, '.cell');
+            if (cell) {
+                handleMouseOver({ target: cell });
+            } else {
+                handleMouseOut();
+            }
+        }
+
+        function handleSVGClick(e) {
+            const cell = getElementFromPoint(e, '.cell');
+            if (cell) {
+                handleCellClick({ target: cell });
+            }
+        }
+
+        function getElementFromPoint(e, selector) {
+            const svg = e.currentTarget;
+            const point = svg.createSVGPoint();
+            point.x = e.clientX;
+            point.y = e.clientY;
+            const transformedPoint = point.matrixTransform(svg.getScreenCTM().inverse());
+            const elements = svg.querySelectorAll(selector);
+            for (let element of elements) {
+                if (element.isPointInFill(transformedPoint)) {
+                    return element;
+                }
+            }
+            return null;
+        }
+
+        function switchTab(sheet) {
+            currentSheet = sheet;
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.sheet === sheet) {
+                    tab.classList.add('active');
+                }
+            });
+            const controls = document.getElementById('controls');
+            if (sheet === 'Summary') {
+                if (controls) controls.style.display = 'none';
+                document.getElementById('svgContainer').style.display = 'none';
+                document.getElementById('toggleBtn').style.display = 'none'; 
+                document.getElementById('summaryDashboard').style.display = 'block';
+                loadSummaryDashboard();
+            } else {
+                if (controls) controls.style.display = 'block';
+                document.getElementById('svgContainer').style.display = 'block';
+                document.getElementById('toggleBtn').style.display = 'block';
+                document.getElementById('summaryDashboard').style.display = 'none';
+                currentScale = getInitialScale(sheet);
+                const position = getInitialPosition(sheet);
+                currentPositionX = position.x;
+                currentPositionY = position.y;
+                loadSVGWithZones(sheet);
+            }
+        }
+
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => switchTab(tab.dataset.sheet));
+        });
+
+        function switchSummaryView(view) {
+            const statusPanel = document.getElementById('summaryViewStatus');
+            const trendPanel = document.getElementById('summaryViewTrend');
+            document.querySelectorAll('.summary-view-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.view === view);
+            });
+            if (view === 'status') {
+                if (statusPanel) statusPanel.style.display = '';
+                if (trendPanel) trendPanel.style.display = 'none';
+            } else {
+                if (statusPanel) statusPanel.style.display = 'none';
+                if (trendPanel) trendPanel.style.display = '';
+            }
+        }
+        document.querySelectorAll('.summary-view-btn').forEach(btn => {
+            btn.addEventListener('click', () => switchSummaryView(btn.dataset.view));
+        });
+
+        function zoomIn() {
+            currentScale *= 1.2;
+            updateTransform();
+        }
+
+        function zoomOut() {
+            currentScale /= 1.2;
+            updateTransform();
+        }
+
+        function resetView() {
+            currentScale = getInitialScale(currentSheet);
+            const position = getInitialPosition(currentSheet);
+            currentPositionX = position.x;
+            currentPositionY = position.y;
+            updateTransform();
+        }
+
+        function handleMouseOver(event) {
+            showPopup(event, false);
+        }
+
+        function handleMouseOut(event) {
+            const popup = document.getElementById('popup');
+            popup.style.display = 'none';
+        }
+
+        function handleCellClick(event) {
+            const cell = event.target;
+            const existingPopupIndex = activePopups.findIndex(item => item.cell === cell);
+            if (existingPopupIndex !== -1) {
+                const { popup } = activePopups[existingPopupIndex];
+                removePopup(popup, cell);
+            } else {
+                showPopup(event, true);
+                cell.classList.add('active');
+                activePopups.push({ cell, popup: document.querySelector('.popup:last-child') });
+            }   
+            event.stopPropagation();
+        }
+
+        function updateTransform() {
+            const svg = document.querySelector('#svgContainer svg');
+            if (svg) {
+                svg.style.transform = `translate(${currentPositionX}px, ${currentPositionY}px) scale(${currentScale})`;
+                svg.style.transformOrigin = '0 0';
+            }
+        }
+
+        function updateResultCount() {
+            let count = 0;
+            const svg = document.querySelector('#svgContainer svg');
+            if (svg) {
+                svg.querySelectorAll('.cell').forEach(cell => {
+                    if (cell.inventoryData) {
+                        let itemsToCount;
+                        if (searchResults.length > 0) {
+                            itemsToCount = cell.searchResults || [];
+                        } else {
+                            itemsToCount = cell.inventoryData;
+                        }
+                        const filteredItems = filterInventoryData(itemsToCount);
+                        count += filteredItems.length;
+                    }
+                });
+            }
+            const countElement = document.getElementById('searchResultCount');
+            countElement.textContent = `결과 개수: ${count}개`;
+        }
+
+        function search() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const searchType = document.getElementById('searchDropdown').value;
+            const cells = document.querySelectorAll('.cell');
+            searchResults = [];
+            if (searchTerm.trim() !== '') {
+                if (searchType === 'location') {
+                    searchByLocation(searchTerm, cells);
+                } else {
+                    searchByAttribute(searchTerm, searchType, cells);
+                }
+            } else {
+                cells.forEach(cell => {
+                    cell.searchResults = null;
+                });
+            }
+            applyFilters();
+            updateResultCount();
+            if (searchTerm.trim() !== '' && searchResults.length === 0) {
+                showNoResultsAlert();
+            }
+        }
+
+        function showNoResultsAlert() {
+            alert("조건에 맞는 검색 결과가 없습니다");
+        }
+
+        function resetSearch() {
+            document.getElementById('searchInput').value = ''; 
+            document.getElementById('restockCycleSelect').value = 'none'; 
+            document.getElementById('avgSalesSelect').value = 'none'; 
+            document.getElementById('salesMethodSelect').value = 'none';
+            document.getElementById('supplyCycleSelect').value = 'none';
+            document.getElementById('weightSelect').value = 'none';
+            document.getElementById('keepTypeSelect').value = 'none';
+            activeRestockCycleFilter = 'none';
+            activeAvgSalesFilter = 'none';
+            activeSalesMethodFilter = 'none';
+            activeSupplyCycleFilter = 'none';
+            activeWeightFilter = 'none';
+            activeKeepTypeFilter = 'none';
+            searchResults = []; 
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach(cell => {
+                cell.style.fill = ''; 
+                cell.searchResults = null; 
+            });
+            applyFilters(); 
+            updateResultCount();
+        }
+
+        function searchByLocation(searchTerm, cells) {
+            cells.forEach(cell => {
+                const cellValue = cell.getAttribute('data-value').toLowerCase();
+                if (cellValue.includes(searchTerm)) {
+                    searchResults.push(cell);
+                }
+            });
+        }
+
+        function searchByAttribute(searchTerm, searchType, cells) {
+            const attributeMap = {
+                'supplierCode': '공급사코드',
+                'supplierName': '공급사명',
+                'goodsCode': '상품코드',
+                'goodsName': '상품명',
+                'category': '카테고리'
+            };
+            const attribute = attributeMap[searchType];
+            cells.forEach(cell => {
+                if (cell.inventoryData) {
+                    const matchingItems = cell.inventoryData.filter(item => 
+                        item[attribute] && item[attribute].toLowerCase().includes(searchTerm)
+                    );
+                    if (matchingItems.length > 0) {
+                        searchResults.push(cell);
+                        cell.searchResults = matchingItems;
+                    }
+                }
+            });
+        }
+
+        function startDrag(e) {
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            const svg = document.querySelector('svg');
+            const transform = new DOMMatrix(window.getComputedStyle(svg).transform);
+            svgX = transform.e;
+            svgY = transform.f;
+        }
+
+        function drag(e) {
+            if (!isDragging) return;
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            const svg = document.querySelector('svg');
+            svg.style.transform = `translate(${svgX + dx}px, ${svgY + dy}px) scale(${currentScale})`;
+        }
+
+        function endDrag() {
+            isDragging = false;
+        }
+
+        function handleWheel(e) {
+            e.preventDefault();
+            const delta = e.deltaY;
+            if (delta > 0) {
+                currentScale /= 1.1;
+            } else {
+                currentScale *= 1.1;
+            }
+            updateTransform();
+        }
+
+        function hidePopup() {
+            document.getElementById('popup').style.display = 'none';
+            document.getElementById('imagePopup').style.display = 'none';
+            if (activeCell) {
+                activeCell.classList.remove('active');
+                activeCell = null;
+            }
+        }
+
+        function loadInventoryData() {
+            return fetch(`/api/inventory_data?sheet=${currentSheet}`)
+                .then(response => response.json())
+                .then(responseData => {
+                    inventoryData = responseData.data;
+                    const uniqueSkus = new Set(inventoryData.map(item => item['상품코드']));
+                    document.getElementById('skuCount').textContent = uniqueSkus.size;
+                    document.getElementById('lastUpdateTime').textContent = `최근 업데이트: ${responseData.lastUpdateTime}`;
+                })
+                .catch(error => console.error('Error loading inventory data:', error));
+        }
+
+        let summaryCharts = { avgSales: null, skuUnit: null, category: null, supplier: null, skuTrend: null, batchGenTrend: null };
+
+        function parseNumber(v) {
+            if (v === null || v === undefined) return 0;
+            if (typeof v === 'number') return v;
+            const num = parseFloat(String(v).replace(/,/g, '').replace(/[^0-9.-]/g, ''));
+            return isNaN(num) ? 0 : num;
+        }
+
+        function computeZoneStatistics(data) {
+            const zones = {};
+            data.forEach(item => {
+                const zone = (item['존'] || item['ZONE'] || item['zone'] || '').toString().trim() || '미지정';
+                if (!zones[zone]) {
+                    zones[zone] = { avgSalesSum: 0, skuSet: new Set(), unitSum: 0, categoryCounts: {}, supplierCounts: {} };
+                }
+                const z = zones[zone];
+                z.avgSalesSum += parseNumber(item['평균판매량']);
+                const code = item['상품코드'] || item['상품 코드'] || item['goodsCode'] || '';
+                if (code) z.skuSet.add(code.toString());
+                z.unitSum += parseNumber(item['재고']);
+                const cat = (item['카테고리'] || item['category'] || '').toString().trim() || '미분류';
+                z.categoryCounts[cat] = (z.categoryCounts[cat] || 0) + 1;
+                const supplier = (item['공급사명'] || item['supplierName'] || '').toString().trim() || '미지정';
+                z.supplierCounts[supplier] = (z.supplierCounts[supplier] || 0) + 1;
+            });
+
+            const result = {};
+            Object.keys(zones).forEach(zone => {
+                result[zone] = {
+                    avgSalesSum: +zones[zone].avgSalesSum.toFixed(2),
+                    SKU: zones[zone].skuSet.size,
+                    UNIT: +zones[zone].unitSum.toFixed(2),
+                    categoryCounts: zones[zone].categoryCounts,
+                    supplierCounts: zones[zone].supplierCounts
+                };
+            });
+            return result;
+        }
+
+        function loadSummaryDashboard() {
+            fetch('/api/zone_statistics')
+                .then(r => r.json())
+                .then(resp => {
+                    const zone_stats = resp.zone_statistics || {};
+                    const agg = aggregateZones(zone_stats);
+                    renderAvgSalesChart(agg);
+                    renderSkuUnitChart(agg);
+                    renderZoneCategoryCharts(agg);
+                    renderZoneSupplierCharts(agg);
+                    if (resp.lastUpdate && resp.lastUpdate.picking) {
+                        document.getElementById('lastUpdateTime').textContent = `최근 업데이트: ${resp.lastUpdate.picking}`;
+                    }
+                })
+                .catch(err => {
+                    const zone_stats = computeZoneStatistics(inventoryData);
+                    const agg = aggregateZones(zone_stats);
+                    renderAvgSalesChart(agg);
+                    renderSkuUnitChart(agg);
+                    renderZoneCategoryCharts(agg);
+                    renderZoneSupplierCharts(agg);
+                });
+            
+            fetch('/api/sku_trend')
+                .then(r => r.json())
+                .then(resp => {
+                    if (resp.error) return;
+                    renderSkuTrendChart(resp);
+                })
+                .catch(err => console.error(err));
+            
+            fetch('/api/batch_gen_trend')
+                .then(r => r.json())
+                .then(resp => {
+                    if (resp.error) return;
+                    renderBatchGenTrendChart(resp);
+                })
+                .catch(err => console.error(err));
+        }
+
+        function aggregateZones(zone_stats) {
+            const aggregated = {};
+            Object.keys(zone_stats).forEach(zone => {
+                const target = zone.startsWith('1F') ? '1F' : zone;
+                if (!aggregated[target]) {
+                    aggregated[target] = { avgSalesSum: 0, SKU: 0, UNIT: 0, categoryCounts: {}, supplierCounts: {} };
+                }
+                aggregated[target].avgSalesSum += Number(zone_stats[zone].avgSalesSum || 0);
+                aggregated[target].SKU += Number(zone_stats[zone].SKU || 0);
+                aggregated[target].UNIT += Number(zone_stats[zone].UNIT || 0);
+                const cats = zone_stats[zone].categoryCounts || {};
+                Object.keys(cats).forEach(cat => {
+                    aggregated[target].categoryCounts[cat] = (aggregated[target].categoryCounts[cat] || 0) + cats[cat];
+                });
+                const supps = zone_stats[zone].supplierCounts || {};
+                Object.keys(supps).forEach(s => {
+                    aggregated[target].supplierCounts[s] = (aggregated[target].supplierCounts[s] || 0) + supps[s];
+                });
+            });
+            Object.keys(aggregated).forEach(z => {
+                aggregated[z].avgSalesSum = +aggregated[z].avgSalesSum.toFixed(2);
+                aggregated[z].UNIT = +aggregated[z].UNIT.toFixed(2);
+            });
+            return aggregated;
+        }
+
+        function sortLabelsByOrder(labels) {
+            const order = ['1F','2FA','2FM','2FI','2FBA','2FBB','2FCA','2FC','2FD','2FE','2FEA','2FK','2FF','2FL','2FG','2FO','2FP','2FR','2FS'];
+            const maxIndex = order.length;
+            const indexed = labels.map(l => {
+                const idx = order.findIndex(o => l === o || l.startsWith(o));
+                return { label: l, index: idx === -1 ? maxIndex : idx };
+            });
+            indexed.sort((a,b) => {
+                if (a.index !== b.index) return a.index - b.index;
+                return a.label.localeCompare(b.label, 'en', {numeric:true});
+            });
+            return indexed.map(x => x.label);
+        }
+
+        function renderAvgSalesChart(zone_stats) {
+            const labels = sortLabelsByOrder(Object.keys(zone_stats));
+            const data = labels.map(z => zone_stats[z].avgSalesSum);
+            const ctx = document.getElementById('chartAvgSales').getContext('2d');
+            if (summaryCharts.avgSales) summaryCharts.avgSales.destroy();
+            summaryCharts.avgSales = new Chart(ctx, {
+                type: 'bar',
+                data: { labels, datasets: [{ label: '평균출고량', data, backgroundColor: 'rgba(54,162,235,0.6)' }] },
+                options: { responsive: true, plugins: { legend: { display: false }, datalabels: { display: false } }, scales: { y: { beginAtZero: true } } }
+            });
+        }
+
+        function renderSkuUnitChart(zone_stats) {
+            const labels = sortLabelsByOrder(Object.keys(zone_stats));
+            const skuData = labels.map(z => zone_stats[z].SKU);
+            const unitData = labels.map(z => zone_stats[z].UNIT);
+            const ctx = document.getElementById('chartSkuUnit').getContext('2d');
+            if (summaryCharts.skuUnit) summaryCharts.skuUnit.destroy();
+            summaryCharts.skuUnit = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [
+                        { label: 'SKU', data: skuData, backgroundColor: 'rgba(255,159,64,0.6)', yAxisID: 'y' },
+                        { label: 'UNIT', data: unitData, backgroundColor: 'rgba(75,192,192,0.6)', yAxisID: 'y1' }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: { legend: { display: true }, datalabels: { display: false } },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            beginAtZero: true,
+                            title: { display: true, text: 'SKU' }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            beginAtZero: true,
+                            grid: { drawOnChartArea: false },
+                            title: { display: true, text: 'UNIT' }
+                        }
+                    }
+                }
+            });
+        }
+
+        const CATEGORY_COLORS = {
+            '주류': 'rgba(153,102,255,0.8)',
+            '기타': 'rgba(128,128,128,0.8)',
+            '가공품': 'rgba(255,159,64,0.8)',
+            '청과': 'rgba(75,192,75,0.8)',
+            '달걀': 'rgba(255,206,86,0.8)',
+            '곡물류': 'rgba(210,180,140,0.8)',
+            '반찬': 'rgba(255,99,71,0.8)',
+            '유제품': 'rgba(135,206,250,0.8)',
+            '음료': 'rgba(70,130,180,0.8)',
+            '반찬/밀키트': 'rgba(255,140,0,0.8)',
+            '델리': 'rgba(186,85,211,0.8)',
+            '육류': 'rgba(205,92,92,0.8)',
+            '수산': 'rgba(64,224,208,0.8)',
+            '냉장식품': 'rgba(173,216,230,0.8)',
+            '빵': 'rgba(222,184,135,0.8)'
+        };
+        function getCategoryColor(category) {
+            return CATEGORY_COLORS[category] || 'rgba(200,200,200,0.8)';
+        }
+        function formatCategoryName(category) {
+            if (category === '반찬/밀키트') return '밀키트';
+            return category;
+        }
+
+        function renderZoneCategoryCharts(zone_stats) {
+            const container = document.getElementById('zoneCategoryCharts');
+            container.innerHTML = '';
+            const labels = sortLabelsByOrder(Object.keys(zone_stats));
+            const top1Pct = [], top2Pct = [], top3Pct = [];
+            const top1Names = [], top2Names = [], top3Names = [];
+
+            labels.forEach(zone => {
+                const counts = zone_stats[zone].categoryCounts || {};
+                const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+                const totalCount = Object.values(counts).reduce((a,b)=>a+b, 0);
+                
+                if (totalCount > 0) {
+                    top1Pct.push(entries[0] ? +(entries[0][1]/totalCount*100).toFixed(1) : 0);
+                    top2Pct.push(entries[1] ? +(entries[1][1]/totalCount*100).toFixed(1) : 0);
+                    top3Pct.push(entries[2] ? +(entries[2][1]/totalCount*100).toFixed(1) : 0);
+                } else {
+                    top1Pct.push(0);
+                    top2Pct.push(0);
+                    top3Pct.push(0);
+                }
+                
+                top1Names.push(entries[0] ? entries[0][0] : '');
+                top2Names.push(entries[1] ? entries[1][0] : '');
+                top3Names.push(entries[2] ? entries[2][0] : '');
+            });
+
+            const canvas = document.createElement('canvas');
+            canvas.id = 'zoneTopCategoriesChart';
+            canvas.style.height = '300px';
+            container.appendChild(canvas);
+
+            if (summaryCharts.category) {
+                try { summaryCharts.category.destroy(); } catch(e) {}
+            }
+
+            const ctx = canvas.getContext('2d');
+            const namesByRank = [top1Names, top2Names, top3Names];
+
+            summaryCharts.category = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [
+                        { label: 'Top1', data: top1Pct, backgroundColor: top1Names.map(getCategoryColor) },
+                        { label: 'Top2', data: top2Pct, backgroundColor: top2Names.map(getCategoryColor) },
+                        { label: 'Top3', data: top3Pct, backgroundColor: top3Names.map(getCategoryColor) }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { display: false },
+                        datalabels: {
+                            anchor: 'center',
+                            align: 'center',
+                            font: { weight: 'bold', size: 11 },
+                            color: '#000',
+                            formatter: function(value, context) {
+                                const datasetIndex = context.datasetIndex;
+                                const dataIndex = context.dataIndex;
+                                const catName = namesByRank[datasetIndex][dataIndex] || ' ';
+                                return formatCategoryName(catName);
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const datasetIndex = context.datasetIndex;
+                                    const dataIndex = context.dataIndex;
+                                    const value = context.parsed.y;
+                                    const catName = namesByRank[datasetIndex][dataIndex] || ' ';
+                                    const displayName = formatCategoryName(catName);
+                                    return `${context.dataset.label} - ${displayName}: ${value}%`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true, 
+                            max: 100,
+                            ticks: { callback: function(value) { return value + '%'; } },
+                            title: { display: true, text: '비율 (%)' }
+                        },
+                        x: { ticks: { autoSkip: false } }
+                    }
+                }
+            });
+        }
+
+        function renderZoneSupplierCharts(zone_stats) {
+            const container = document.getElementById('zoneSupplierCharts');
+            container.innerHTML = '';
+            const allowedZones = [
+                '2FA', '2FBA', '2FBB', '2FCA', '2FC', '2FD', '2FEA', '2FE',
+                '2FK', '2FF', '2FL', '2FG', '2FO', '2FP', '2FR', '2FS'
+            ];
+            const labels = sortLabelsByOrder(Object.keys(zone_stats))
+                .filter(zone => allowedZones.includes(zone));
+
+            const top1Pct = [], top2Pct = [], top3Pct = [];
+            const top1Names = [], top2Names = [], top3Names = [];
+
+            labels.forEach(zone => {
+                const counts = zone_stats[zone].supplierCounts || {};
+                const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+                const totalCount = Object.values(counts).reduce((a, b) => a + b, 0);
+
+                if (totalCount > 0) {
+                    top1Pct.push(entries[0] ? +(entries[0][1] / totalCount * 100).toFixed(1) : 0);
+                    top2Pct.push(entries[1] ? +(entries[1][1] / totalCount * 100).toFixed(1) : 0);
+                    top3Pct.push(entries[2] ? +(entries[2][1] / totalCount * 100).toFixed(1) : 0);
+                } else {
+                    top1Pct.push(0);
+                    top2Pct.push(0);
+                    top3Pct.push(0);
+                }
+                top1Names.push(entries[0] ? entries[0][0] : '');
+                top2Names.push(entries[1] ? entries[1][0] : '');
+                top3Names.push(entries[2] ? entries[2][0] : '');
+            });
+
+            const canvas = document.createElement('canvas');
+            canvas.id = 'zoneTopSuppliersChart';
+            const baseHeight = 450;      
+            const perLabel = 40;         
+            const dynamicHeight = Math.max(baseHeight, labels.length * perLabel);
+            canvas.style.width = '100%';
+            canvas.style.height = dynamicHeight + 'px';
+            container.appendChild(canvas);
+
+            if (summaryCharts.supplier) {
+                try { summaryCharts.supplier.destroy(); } catch (e) {}
+            }
+
+            const ctx = canvas.getContext('2d');
+            const namesByRank = [top1Names, top2Names, top3Names];
+
+            const allPctValues = top1Pct.concat(top2Pct, top3Pct);
+            const rawMaxPct = allPctValues.length ? Math.max(...allPctValues) : 0;
+            let dynamicMaxPct = rawMaxPct > 0 ? Math.ceil(rawMaxPct / 10) * 10 : 100;
+            dynamicMaxPct = Math.min(dynamicMaxPct, 100);
+
+            summaryCharts.supplier = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [
+                        { label: 'Top1', data: top1Pct, backgroundColor: 'rgba(153,102,255,0.8)' },
+                        { label: 'Top2', data: top2Pct, backgroundColor: 'rgba(75,192,192,0.8)' },
+                        { label: 'Top3', data: top3Pct, backgroundColor: 'rgba(255,159,64,0.8)' }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'nearest', axis: 'y', intersect: true },
+                    plugins: {
+                        legend: { display: true },
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'right',
+                            offset: 6,
+                            clamp: true,
+                            font: { weight: 'bold', size: 11 },
+                            color: '#000',
+                            formatter: function (value, context) {
+                                const datasetIndex = context.datasetIndex;
+                                const dataIndex = context.dataIndex;
+                                return namesByRank[datasetIndex][dataIndex] || ' ';
+                            }
+                        },
+                        tooltip: {
+                            mode: 'nearest',
+                            axis: 'y',
+                            intersect: true,
+                            callbacks: {
+                                label: function (context) {
+                                    const datasetIndex = context.datasetIndex;
+                                    const dataIndex = context.dataIndex;
+                                    const value = context.parsed.x;
+                                    const name = namesByRank[datasetIndex][dataIndex] || ' ';
+                                    return `${context.dataset.label} - ${name}: ${value}%`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: dynamicMaxPct,
+                            ticks: { callback: function (value) { return value + '%'; } },
+                            title: { display: true, text: '비율 (%)' }
+                        },
+                        y: { ticks: { autoSkip: false } }
+                    }
+                }
+            });
+        }
+
+        function getWeekNumber(dateStr) {
+            const date = new Date(dateStr + 'T00:00:00');
+            const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+            const dayNum = d.getUTCDay() || 7;
+            d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+            const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+            return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+        }
+
+        function getWeekKey(dateStr) {
+            const date = new Date(dateStr + 'T00:00:00');
+            const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+            const dayNum = d.getUTCDay() || 7;
+            d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+            const year = d.getUTCFullYear();  
+            const week = getWeekNumber(dateStr);
+            return `${year}-W${String(week).padStart(2, '0')}`;
+        }
+
+        function getWeekStartDate(dateStr) {
+            const date = new Date(dateStr + 'T00:00:00');
+            const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+            const dayNum = d.getUTCDay() || 7;
+            d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+            const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+            const weekNum = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+            
+            const jan4 = new Date(Date.UTC(d.getUTCFullYear(), 0, 4));
+            const jan4DayNum = jan4.getUTCDay() || 7;
+            const weekStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 4));
+            weekStart.setUTCDate(4 - jan4DayNum + 1 + (weekNum - 1) * 7);
+            
+            const year = weekStart.getUTCFullYear();
+            const month = String(weekStart.getUTCMonth() + 1).padStart(2, '0');
+            const day = String(weekStart.getUTCDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        async function renderSkuTrendChart(trendData) {
+            const { dates, zones, lastUpdate } = trendData;
+            let unitResp = { zones: {} };
+            try {
+                const r = await fetch('/api/unit_trend');
+                if (r.ok) unitResp = await r.json();
+            } catch (e) {
+                console.warn('Failed to load unit trend', e);
+            }
+            const unitZones = unitResp.zones || {};
+            
+            if (!dates || dates.length === 0 || !zones || Object.keys(zones).length === 0) {
+                return;
+            }
+            
+            const zoneGroupMap = {
+                '1F': '1F',
+                '2FA': '1조', '2FM': '1조', '2FI': '1조', '2FBA': '1조', '2FBB': '1조',
+                '2FCA': '2조', '2FC': '2조', '2FD': '2조',
+                '2FE(B)': '3조', '2FEA': '3조', '2FK': '3조',
+                '2FF': '4조', '2FL': '4조', '2FG': '4조', '2FH': '4조',
+                '2FO': '5조', '2FP': '5조', '2FR': '5조', '2FZ(S)': '5조'
+            };
+            
+            const groupedZones = {};
+            Object.keys(zones).forEach(zone => {
+                const groupName = zoneGroupMap[zone] || zone;
+                if (!groupedZones[groupName]) {
+                    groupedZones[groupName] = [];
+                }
+                groupedZones[groupName].push(zone);
+            });
+            
+            const weeklyData = {};
+            const weeklyDataUnits = {};
+            
+            dates.forEach((date, idx) => {
+                const weekKey = getWeekKey(date);
+                if (!weeklyData[weekKey]) {
+                    weeklyData[weekKey] = { startDate: getWeekStartDate(date), dailyGroupSums: [] };
+                }
+                if (!weeklyDataUnits[weekKey]) {
+                    weeklyDataUnits[weekKey] = { dailyGroupSums: [] };
+                }
+                
+                const daySums = {};
+                Object.keys(groupedZones).forEach(group => {
+                    let groupSum = 0;
+                    groupedZones[group].forEach(zone => {
+                        if (zones[zone] && zones[zone][idx] !== undefined) {
+                            groupSum += zones[zone][idx];
+                        }
+                    });
+                    daySums[group] = groupSum;
+                });
+                weeklyData[weekKey].dailyGroupSums.push(daySums);
+
+                const daySumsUnits = {};
+                Object.keys(groupedZones).forEach(group => {
+                    let groupSum = 0;
+                    groupedZones[group].forEach(zone => {
+                        if (unitZones[zone] && unitZones[zone][idx] !== undefined) {
+                            groupSum += unitZones[zone][idx];
+                        }
+                    });
+                    daySumsUnits[group] = groupSum;
+                });
+                weeklyDataUnits[weekKey].dailyGroupSums.push(daySumsUnits);
+            });
+            
+            const sortedWeeks = Object.keys(weeklyData).sort((a, b) => {
+                const [yearA, weekA] = a.split('-W').map(x => parseInt(x, 10));
+                const [yearB, weekB] = b.split('-W').map(x => parseInt(x, 10));
+                if (yearA !== yearB) return yearA - yearB;
+                return weekA - weekB;
+            });
+            const weeklyLabels_temp = sortedWeeks.map(weekKey => {
+                const [year, week] = weekKey.split('-W').map(x => parseInt(x, 10));
+                return `Y${String(year).slice(-2)} W${week}`;
+            });
+            
+            const groupOrder = ['1F', '1조', '2조', '3조', '4조', '5조'];
+            const sortedGroups = Object.keys(groupedZones).sort((a, b) => {
+                const indexA = groupOrder.indexOf(a);
+                const indexB = groupOrder.indexOf(b);
+                if (indexA === -1) return 1;
+                if (indexB === -1) return -1;
+                return indexA - indexB;
+            });
+            
+            const colors = [
+                'rgba(255, 99, 132, 0.6)', 'rgba(54, 162, 235, 0.6)', 'rgba(255, 206, 86, 0.6)',
+                'rgba(75, 192, 192, 0.6)', 'rgba(153, 102, 255, 0.6)', 'rgba(255, 159, 64, 0.6)',
+                'rgba(199, 199, 199, 0.6)', 'rgba(83, 102, 255, 0.6)', 'rgba(255, 99, 255, 0.6)',
+                'rgba(99, 255, 132, 0.6)', 'rgba(255, 159, 132, 0.6)', 'rgba(132, 99, 255, 0.6)'
+            ];
+            
+            const container = document.getElementById('skuTrendChartsContainer');
+            container.innerHTML = '';
+            
+            if (!summaryCharts.skuTrend) summaryCharts.skuTrend = {};
+            Object.keys(summaryCharts.skuTrend).forEach(key => summaryCharts.skuTrend[key].destroy());
+            summaryCharts.skuTrend = {};
+            
+            sortedGroups.forEach((group, idx) => {
+                const chartDiv = document.createElement('div');
+                chartDiv.style.padding = '15px';
+                chartDiv.style.border = '1px solid #ddd';
+                chartDiv.style.borderRadius = '8px';
+                chartDiv.style.backgroundColor = '#f9f9f9';
+                
+                const titleDiv = document.createElement('h4');
+                titleDiv.style.margin = '0 0 10px 0';
+                titleDiv.textContent = group;
+                chartDiv.appendChild(titleDiv);
+                
+                const canvas = document.createElement('canvas');
+                canvas.id = `chartSkuTrend_${group}`;
+                canvas.style.maxHeight = '250px';
+                chartDiv.appendChild(canvas);
+                
+                container.appendChild(chartDiv);
+                
+                const groupData = sortedWeeks.map(weekKey => {
+                    const dailyGroupSums = weeklyData[weekKey].dailyGroupSums || [];
+                    if (dailyGroupSums.length === 0) return 0;
+                    const totalSum = dailyGroupSums.reduce((sum, day) => sum + (day[group] || 0), 0);
+                    return Math.round(totalSum / dailyGroupSums.length * 10) / 10;
+                });
+
+                const groupUnitData = sortedWeeks.map(weekKey => {
+                    const dailyGroupSums = weeklyDataUnits[weekKey].dailyGroupSums || [];
+                    if (dailyGroupSums.length === 0) return 0;
+                    const totalSum = dailyGroupSums.reduce((sum, day) => sum + (day[group] || 0), 0);
+                    return Math.round(totalSum / dailyGroupSums.length * 10) / 10;
+                });
+                
+                const numericValues = groupData.filter(v => typeof v === 'number' && !isNaN(v));
+                let suggestedMin = 0, suggestedMax = 1;
+                if (numericValues.length > 0) {
+                    const minVal = Math.min(...numericValues);
+                    const maxVal = Math.max(...numericValues);
+                    if (minVal === maxVal) {
+                        const pad = Math.max(1, Math.abs(maxVal) * 0.1);
+                        suggestedMin = Math.max(0, minVal - pad);
+                        suggestedMax = maxVal + pad;
+                    } else {
+                        const range = maxVal - minVal;
+                        const pad = range * 0.1;
+                        suggestedMin = Math.max(0, minVal - pad);
+                        suggestedMax = maxVal + pad;
+                    }
+                }
+
+                const numericUnitValues = groupUnitData.filter(v => typeof v === 'number' && !isNaN(v));
+                let suggestedMinUnit = 0, suggestedMaxUnit = 1;
+                if (numericUnitValues.length > 0) {
+                    const minValU = Math.min(...numericUnitValues);
+                    const maxValU = Math.max(...numericUnitValues);
+                    if (minValU === maxValU) {
+                        const pad = Math.max(1, Math.abs(maxValU) * 0.1);
+                        suggestedMinUnit = Math.max(0, minValU - pad);
+                        suggestedMaxUnit = maxValU + pad;
+                    } else {
+                        const rangeU = maxValU - minValU;
+                        const padU = rangeU * 0.1;
+                        suggestedMinUnit = Math.max(0, minValU - padU);
+                        suggestedMaxUnit = maxValU + padU;
+                    }
+                }
+
+                const ctx = canvas.getContext('2d');
+                summaryCharts.skuTrend[group] = new Chart(ctx, {
+                    data: {
+                        labels: weeklyLabels_temp,
+                        datasets: [
+                            {
+                                type: 'line',
+                                label: group + ' SKU',
+                                data: groupData,
+                                borderColor: colors[idx % colors.length].replace('0.6', '1'),
+                                backgroundColor: colors[idx % colors.length],
+                                borderWidth: 2,
+                                tension: 0.4,
+                                fill: false,
+                                yAxisID: 'y'
+                            },
+                            {
+                                type: 'bar',
+                                label: group + ' UNIT',
+                                data: groupUnitData,
+                                backgroundColor: colors[(idx+1) % colors.length].replace('0.6', '0.6'),
+                                borderColor: colors[(idx+1) % colors.length].replace('0.6', '1'),
+                                borderWidth: 1,
+                                yAxisID: 'y1'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        interaction: { mode: 'index', intersect: false },
+                        plugins: {
+                            legend: { display: true, position: 'top' },
+                            datalabels: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    title: function(context) {
+                                        const weekKey = sortedWeeks[context[0].dataIndex];
+                                        const startDate = weeklyData[weekKey].startDate;
+                                        const endDate = new Date(startDate + 'T00:00:00');
+                                        endDate.setDate(endDate.getDate() + 6);
+                                        const year = endDate.getFullYear();
+                                        const month = String(endDate.getMonth() + 1).padStart(2, '0');
+                                        const day = String(endDate.getDate()).padStart(2, '0');
+                                        return `${startDate} ~ ${year}-${month}-${day}`;
+                                    },
+                                    label: function(context) { return context.dataset.label + ': ' + context.parsed.y; }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                type: 'linear', display: true, position: 'left',
+                                beginAtZero: false, suggestedMin: suggestedMin, suggestedMax: suggestedMax,
+                                title: { display: true, text: 'SKU' }
+                            },
+                            y1: {
+                                type: 'linear', display: true, position: 'right',
+                                beginAtZero: false, suggestedMin: suggestedMinUnit, suggestedMax: suggestedMaxUnit,
+                                grid: { drawOnChartArea: false },
+                                title: { display: true, text: 'UNIT' }
+                            },
+                            x: { title: { display: true, text: '' }, ticks: { maxRotation: 45, minRotation: 0 } }
+                        }
+                    }
+                });
+            });
+        }
+
+        async function renderBatchGenTrendChart(trendData) {
+            const { dates, zones, lastUpdate } = trendData;
+            if (!dates || dates.length === 0 || !zones || Object.keys(zones).length === 0) {
+                const container = document.getElementById('batchGenTrendChartsContainer');
+                if (container) container.innerHTML = '<p style="color:#666;">배치생성률 추이 데이터가 없습니다.</p>';
+                return;
+            }
+            const weeklyData = {};
+            dates.forEach((date, idx) => {
+                const weekKey = getWeekKey(date);
+                if (!weeklyData[weekKey]) {
+                    weeklyData[weekKey] = { startDate: getWeekStartDate(date), dailyPerZone: [] };
+                }
+                const dayPerZone = {};
+                Object.keys(zones).forEach(zone => {
+                    dayPerZone[zone] = (zones[zone] && zones[zone][idx] !== undefined) ? zones[zone][idx] : 0;
+                });
+                weeklyData[weekKey].dailyPerZone.push(dayPerZone);
+            });
+            const sortedWeeks = Object.keys(weeklyData).sort((a, b) => {
+                const [yearA, weekA] = a.split('-W').map(x => parseInt(x, 10));
+                const [yearB, weekB] = b.split('-W').map(x => parseInt(x, 10));
+                if (yearA !== yearB) return yearA - yearB;
+                return weekA - weekB;
+            });
+            const weeklyLabels_temp = sortedWeeks.map(weekKey => {
+                const [year, week] = weekKey.split('-W').map(x => parseInt(x, 10));
+                return 'Y' + String(year).slice(-2) + ' W' + week;
+            });
+            const zoneOrder = sortLabelsByOrder(Object.keys(zones));
+            const colors = [
+                'rgba(255, 99, 132, 0.8)', 'rgba(54, 162, 235, 0.8)', 'rgba(255, 206, 86, 0.8)',
+                'rgba(75, 192, 192, 0.8)', 'rgba(153, 102, 255, 0.8)', 'rgba(255, 159, 64, 0.8)',
+                'rgba(199, 199, 199, 0.8)', 'rgba(83, 102, 255, 0.8)', 'rgba(255, 99, 255, 0.8)',
+                'rgba(99, 255, 132, 0.8)', 'rgba(255, 159, 132, 0.8)', 'rgba(132, 99, 255, 0.8)',
+                'rgba(99, 132, 255, 0.8)', 'rgba(255, 132, 99, 0.8)', 'rgba(132, 255, 99, 0.8)'
+            ];
+            function isValidBatchVal(v) {
+                if (v === null || v === undefined || v === '') return false;
+                const n = Number(v);
+                return !isNaN(n) && n !== 0;
+            }
+            const datasets = zoneOrder.map((zone, idx) => {
+                const weeklyValues = sortedWeeks.map(weekKey => {
+                    const dailyPerZone = weeklyData[weekKey].dailyPerZone || [];
+                    const validValues = dailyPerZone
+                        .map(day => day[zone])
+                        .filter(v => isValidBatchVal(v));
+                    if (validValues.length === 0) return null;
+                    const sum = validValues.reduce((acc, v) => acc + Number(v), 0);
+                    return Math.round(sum / validValues.length * 100) / 100;
+                });
+                return {
+                    type: 'line',
+                    label: zone,
+                    data: weeklyValues,
+                    borderColor: colors[idx % colors.length].replace('0.8', '1'),
+                    backgroundColor: colors[idx % colors.length],
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: false
+                };
+            });
+            const container = document.getElementById('batchGenTrendChartsContainer');
+            container.innerHTML = '';
+            if (summaryCharts.batchGenTrend && summaryCharts.batchGenTrend.destroy) {
+                summaryCharts.batchGenTrend.destroy();
+            }
+            const chartDiv = document.createElement('div');
+            chartDiv.style.padding = '15px';
+            chartDiv.style.border = '1px solid #ddd';
+            chartDiv.style.borderRadius = '8px';
+            chartDiv.style.backgroundColor = '#f9f9f9';
+
+            const contentRow = document.createElement('div');
+            contentRow.style.display = 'flex';
+            contentRow.style.flexDirection = 'row';
+            contentRow.style.alignItems = 'flex-start';
+            contentRow.style.gap = '12px';
+
+            const canvasWrapper = document.createElement('div');
+            canvasWrapper.style.flex = '1';
+
+            const toggleWrapper = document.createElement('div');
+            toggleWrapper.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
+            toggleWrapper.style.border = '1px solid #ccc';
+            toggleWrapper.style.borderRadius = '6px';
+            toggleWrapper.style.padding = '6px 8px';
+            toggleWrapper.style.maxHeight = '220px';
+            toggleWrapper.style.overflowY = 'auto';
+            toggleWrapper.style.fontSize = '11px';
+            toggleWrapper.style.boxShadow = '0 2px 6px rgba(0, 0, 0, 0.15)';
+            toggleWrapper.style.minWidth = '120px';
+            toggleWrapper.style.maxWidth = '200px';
+
+            const toggleTitle = document.createElement('div');
+            toggleTitle.textContent = 'Zone 토글';
+            toggleTitle.style.fontWeight = '600';
+            toggleTitle.style.marginBottom = '4px';
+            toggleWrapper.appendChild(toggleTitle);
+
+            const toggleList = document.createElement('div');
+            zoneOrder.forEach(zone => {
+                const item = document.createElement('label');
+                item.style.display = 'flex';
+                item.style.alignItems = 'center';
+                item.style.gap = '4px';
+                item.style.marginBottom = '2px';
+
+                const cb = document.createElement('input');
+                cb.type = 'checkbox';
+                cb.checked = true;
+                cb.dataset.zone = zone;
+
+                cb.addEventListener('change', function () {
+                    const chart = summaryCharts.batchGenTrend;
+                    if (!chart) return;
+                    const idx = chart.data.datasets.findIndex(ds => ds.label === zone);
+                    if (idx === -1) return;
+                    chart.data.datasets[idx].hidden = !this.checked;
+                    chart.update();
+                });
+
+                const labelText = document.createElement('span');
+                labelText.textContent = zone;
+
+                item.appendChild(cb);
+                item.appendChild(labelText);
+                toggleList.appendChild(item);
+            });
+            toggleWrapper.appendChild(toggleList);
+
+            const canvas = document.createElement('canvas');
+            canvas.id = 'chartBatchGenTrendAll';
+            canvas.style.maxHeight = '350px';
+            canvas.style.width = '100%';
+            canvasWrapper.appendChild(canvas);
+
+            contentRow.appendChild(canvasWrapper);
+            contentRow.appendChild(toggleWrapper);
+            chartDiv.appendChild(contentRow);
+            container.appendChild(chartDiv);
+            const allValues = datasets.flatMap(d => d.data).filter(v => typeof v === 'number' && !isNaN(v));
+            let suggestedMin = 0;
+            if (allValues.length > 0) {
+                const minVal = Math.min(...allValues);
+                const maxVal = Math.max(...allValues);
+                const range = maxVal - minVal;
+                const pad = range > 0 ? range * 0.1 : Math.max(1, Math.abs(maxVal) * 0.1);
+                suggestedMin = Math.max(0, minVal - pad);
+            }
+            const ctx = canvas.getContext('2d');
+            summaryCharts.batchGenTrend = new Chart(ctx, {
+                data: { labels: weeklyLabels_temp, datasets: datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { display: true, position: 'top' },
+                        datalabels: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                title: function(context) {
+                                    const weekKey = sortedWeeks[context[0].dataIndex];
+                                    const startDate = weeklyData[weekKey].startDate;
+                                    const endDate = new Date(startDate + 'T00:00:00');
+                                    endDate.setDate(endDate.getDate() + 6);
+                                    const endDateStr = endDate.getFullYear() + '-' + String(endDate.getMonth() + 1).padStart(2, '0') + '-' + String(endDate.getDate()).padStart(2, '0');
+                                    return startDate + ' ~ ' + endDateStr;
+                                },
+                                label: function(context) { return context.dataset.label + ': ' + context.parsed.y + '%'; }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            beginAtZero: false,
+                            min: suggestedMin,
+                            max: 100,
+                            title: { display: true, text: '배치생성률 (%)' }
+                        },
+                        x: {
+                            title: { display: true, text: '' },
+                            ticks: { maxRotation: 45, minRotation: 0 }
+                        }
+                    }
+                }
+            });
+        }
+
+        function toggleFilter(filterName) {
+            activeFilter = activeFilter === filterName ? null : filterName;
+            const svg = document.querySelector('#svgContainer svg');
+            if (svg) {
+                svg.querySelectorAll('.cell').forEach(cell => {
+                    if (activeFilter === '입고주기') {
+                        if (cell.inventoryData) {
+                            updateElementColor(cell, cell.inventoryData);
+                        } else {
+                            cell.style.fill = '';
+                        }
+                    } else {
+                        cell.style.fill = '';
+                    }
+                });
+            }
+            if (activeFilter === null) {
+                document.getElementById('filterSelect').value = 'none';
+            }
+        }
+
+        function adjustPopupPosition(popup, x, y) {
+            const rect = popup.getBoundingClientRect();
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            if (x + rect.width > viewportWidth) x = viewportWidth - rect.width;
+            if (y + rect.height > viewportHeight) y = viewportHeight - rect.height;
+            x = Math.max(0, x);
+            y = Math.max(0, y);
+            popup.style.left = x + 'px';
+            popup.style.top = y + 'px';
+        }
+
+        function showPopup(event, isClick = false) {
+            const cell = event.target;
+            const items = cell.inventoryData;
+            let popup;
+            if (isClick) {
+                popup = createPopup(event, cell);
+            } else {
+                popup = document.getElementById('popup');
+                const content = createPopupContent(cell, items);
+                popup.innerHTML = content;
+                popup.style.display = 'block';
+                adjustPopupPosition(popup, event.pageX + 10, event.pageY + 10);
+            }
+            popup.addEventListener('mouseover', handlePopupMouseOver);
+            popup.addEventListener('mouseout', handlePopupMouseOut);
+        }
+
+        function handlePopupMouseOver(event) {
+            if (event.target.classList.contains('image-url')) {
+                showImagePopup(event);
+            } else if (event.target.classList.contains('inventory-history')) {
+                showInventoryHistoryPopup(event);
+            }
+        }
+
+        function handlePopupMouseOut(event) {
+            if (event.target.classList.contains('image-url')) {
+                hideImagePopup();
+            } else if (event.target.classList.contains('inventory-history')) {
+                hideInventoryHistoryPopup();
+            }
+        }
+
+        function createPopup(event, cell) {
+            const items = cell.inventoryData;
+            const content = createPopupContent(cell, items);
+            const popup = document.createElement('div');
+            popup.className = 'popup';
+            popup.innerHTML = content;
+            document.body.appendChild(popup);
+            adjustPopupPosition(popup, event.pageX + 10, event.pageY + 10);
+            const closeButton = document.createElement('button');
+            closeButton.textContent = 'X';
+            closeButton.style.position = 'absolute';
+            closeButton.style.top = '5px';
+            closeButton.style.right = '5px';
+            closeButton.addEventListener('click', () => removePopup(popup, cell));
+            popup.appendChild(closeButton);
+            makeDraggable(popup);
+            return popup;
+        }
+
+        function makeDraggable(popup) {
+            let isDragging = false;
+            let startX, startY;
+            popup.addEventListener('mousedown', startDrag);
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', endDrag);
+
+            function startDrag(e) {
+                if (e.target === popup || popup.contains(e.target)) {
+                    isDragging = true;
+                    startX = e.clientX - popup.offsetLeft;
+                    startY = e.clientY - popup.offsetTop;
+                    popup.style.cursor = 'grabbing';
+                }
+            }
+            function drag(e) {
+                if (!isDragging) return;
+                const newX = e.clientX - startX;
+                const newY = e.clientY - startY;
+                popup.style.left = `${newX}px`;
+                popup.style.top = `${newY}px`;
+            }
+            function endDrag() {
+                isDragging = false;
+                popup.style.cursor = 'grab';
+            }
+        }
+
+        function removePopup(popup, cell) {
+            document.body.removeChild(popup);
+            cell.classList.remove('active');
+            activePopups = activePopups.filter(item => item.popup !== popup);
+        }
+
+        function closePopupOnOutsideClick(event) {
+            if (!event.target.closest('.cell') && !event.target.closest('.popup')) {
+                activePopups.forEach(({ popup, cell }) => removePopup(popup, cell));
+            }
+        }
+
+        function createPopupContent(cell, items) {
+            const location = cell.getAttribute('data-value');
+            let address = 'N/A';
+            if (items && items.length > 0) {
+                address = items[0]['지번'] || address;
+            } else if (cell.inventoryData && cell.inventoryData.length > 0) {
+                address = cell.inventoryData[0]['지번'] || address;
+            }
+            let content = `<strong>지번명: ${location} (${address})</strong><br><br>`;
+            if (!items || items.length === 0) {
+                return content + "재고 없음";
+            } else {
+                let filteredItems;
+                if (searchResults.length > 0 && cell.searchResults) {
+                    filteredItems = filterInventoryData(cell.searchResults);
+                } else {
+                    filteredItems = filterInventoryData(items);
+                }
+                if (filteredItems.length === 0) {
+                    content + "해당 조건의 재고 없음";
+                } else {
+                    filteredItems.forEach((item, index) => {
+                        if (index > 0) {
+                            content += '<hr>'; 
+                        }
+                        content += `
+                            상품코드: ${item['상품코드'] || 'N/A'}<br>
+                            상품명: ${item['상품명'] || 'N/A'}<br>
+                            공급사명: ${item['공급사명'] || 'N/A'}<br>
+                            평균판매량: ${item['평균판매량'] || 'N/A'}<br>
+                            입고주기: ${item['입고주기'] || 'N/A'}<br>
+                            평균입고량: ${item['평균입고량'] || 'N/A'}<br>
+                            재고: ${item['재고'] || 'N/A'}<br>
+                            판매방법: ${item['판매방법'] || 'N/A'}<br>
+                            보충주기: ${item['보충주기'] || 'N/A'}<br>
+                            중량: ${item['중량'] || 'N/A'}<br>
+                        `;
+                        content += `
+                            이미지: <span class="image-url" data-url="${item['상품이미지'] || ''}">url</span> /
+                            최근 입고내역: <span class="inventory-history" data-history="${item['입고일&수량'] || ''}">더보기</span><br>
+                        `;
+                    });
+                }
+            }
+            return content;
+        }
+
+        function showImagePopup(event) {
+            const url = event.target.getAttribute('data-url');
+            if (url) {
+                const imagePopup = document.getElementById('imagePopup');
+                imagePopup.innerHTML = `<img src="${url}" alt="상품이미지">`;
+                imagePopup.style.display = 'block';
+                adjustPopupPosition(imagePopup, event.pageX + 10, event.pageY + 10);
+            }
+        }
+
+        function showInventoryHistoryPopup(event) {
+            const historyData = event.target.getAttribute('data-history');
+            if (historyData) {
+                const historyPopup = document.getElementById('inventoryHistoryPopup');
+                const formattedHistory = historyData
+                    .split('],[')  
+                    .map(entry => entry.replace(/[\[\]]/g, '').trim()) 
+                    .map(entry => {
+                        const [date, quantity] = entry.split('/').map(s => s.trim());
+                        return `${date}: ${quantity}EA`;
+                    })
+                    .join('\n');
+                historyPopup.innerHTML = `
+                    <h4>최근 입고내역</h4>
+                    <pre style="margin: 0; line-height: 1.5;">${formattedHistory}</pre>
+                `;
+                historyPopup.style.display = 'block';
+                adjustPopupPosition(historyPopup, event.pageX + 10, event.pageY + 10);
+            }
+        }
+        
+        function hideInventoryHistoryPopup() {
+            document.getElementById('inventoryHistoryPopup').style.display = 'none';
+        }
+
+        function hideImagePopup() {
+            document.getElementById('imagePopup').style.display = 'none';
+        }
+
+        function applyFilter(items) {
+            const filterValue = document.getElementById("filterSelect").value;
+            if (filterValue === "all") return items;
+            return items.filter(item => {
+                const cycle = item['입고주기'] ? parseFloat(item['입고주기']) : null;
+                if (cycle === null) return false;
+                switch (filterValue) {
+                    case "supershort": return cycle > 0 && cycle <= 3.0;
+                    case "short": return cycle > 3.0 && cycle <= 7.0;
+                    case "week": return cycle > 7.0 && cycle <= 14.0;
+                    case "month": return cycle > 14.0 && cycle <= 30.0;
+                    case "long": return cycle > 30.0;
+                    default: return true;
+                }
+            });
+        }
+
+        function handleRestockCycleFilterChange() {
+            activeRestockCycleFilter = document.getElementById("restockCycleSelect").value;
+            applyFilters();
+        }
+
+        function handleAvgSalesFilterChange() {
+            activeAvgSalesFilter = document.getElementById("avgSalesSelect").value;
+            applyFilters();
+        }
+
+        function handleSalesMethodFilterChange() {
+            activeSalesMethodFilter = document.getElementById("salesMethodSelect").value;
+            applyFilters();
+        }
+
+        function handleSupplyCycleFilterChange() {
+            activeSupplyCycleFilter = document.getElementById("supplyCycleSelect").value;
+            applyFilters();
+        }
+
+        function handleWeightFilterChange() {
+            activeWeightFilter = document.getElementById("weightSelect").value;
+            applyFilters();
+        }
+
+        function handleKeepTypeFilterChange() {
+            activeKeepTypeFilter = document.getElementById("keepTypeSelect").value;
+            applyFilters();
+        }
+
+        function applyFilters() {
+            if ((activeRestockCycleFilter === 'all' && activeAvgSalesFilter === 'all') ||
+                (activeRestockCycleFilter === 'all' && activeSalesMethodFilter === 'all') ||
+                (activeRestockCycleFilter === 'all' && activeSupplyCycleFilter === 'all') ||
+                (activeRestockCycleFilter === 'all' && activeWeightFilter === 'all') ||
+                (activeRestockCycleFilter === 'all' && activeKeepTypeFilter === 'all') ||
+                (activeAvgSalesFilter === 'all' && activeSalesMethodFilter === 'all') ||
+                (activeAvgSalesFilter === 'all' && activeSupplyCycleFilter === 'all') ||
+                (activeAvgSalesFilter === 'all' && activeWeightFilter === 'all') ||
+                (activeAvgSalesFilter === 'all' && activeKeepTypeFilter === 'all') ||
+                (activeSalesMethodFilter === 'all' && activeSupplyCycleFilter === 'all') ||
+                (activeSalesMethodFilter === 'all' && activeWeightFilter === 'all') ||
+                (activeSalesMethodFilter === 'all' && activeKeepTypeFilter === 'all') ||
+                (activeSupplyCycleFilter === 'all' && activeWeightFilter === 'all') ||
+                (activeSupplyCycleFilter === 'all' && activeKeepTypeFilter === 'all') ||
+                (activeWeightFilter === 'all' && activeKeepTypeFilter === 'all')) {
+                alert("전체 필터는 한가지만 선택 가능합니다.");
+                document.getElementById("restockCycleSelect").value = 'none';
+                document.getElementById("avgSalesSelect").value = 'none';
+                document.getElementById("salesMethodSelect").value = 'none';
+                document.getElementById("supplyCycleSelect").value = 'none';
+                document.getElementById("weightSelect").value = 'none';
+                document.getElementById("keepTypeSelect").value = 'none';
+                activeRestockCycleFilter = 'none';
+                activeAvgSalesFilter = 'none';
+                activeSalesMethodFilter = 'none';
+                activeSupplyCycleFilter = 'none';
+                activeWeightFilter = 'none';
+                activeKeepTypeFilter = 'none';
+            }
+
+            const svgDoc = document.querySelector("#svgContainer svg");
+            if (!svgDoc) return;
+
+            if (activeSkuCountFilter) {
+                applySkuCountFilter();
+                updateResultCount();
+                return;
+            }
+
+            svgDoc.querySelectorAll('.cell').forEach(cell => {
+                if (cell.inventoryData) {
+                    updateElementColor(cell, cell.inventoryData);
+                } else {
+                    cell.style.fill = '';
+                }
+            });
+            updateResultCount();
+        }
+
+        function resetCellColor(cell) {
+            if (cell.inventoryData && cell.inventoryData.length > 0) {
+                cell.style.fill = 'gray';
+            } else {
+                cell.style.fill = 'white';
+            }
+        }
+
+        function filterInventoryData(items) {
+            if (!items || !Array.isArray(items)) {
+                return [];
+            }
+            return items.filter(item => {
+                let passRestockCycle = activeRestockCycleFilter === 'none' || activeRestockCycleFilter === 'all';
+                let passAvgSales = activeAvgSalesFilter === 'none' || activeAvgSalesFilter === 'all';
+                let passSalesMethod = activeSalesMethodFilter === 'none' || activeSalesMethodFilter === 'all';
+                let passSupplyCycle = activeSupplyCycleFilter === 'none' || activeSupplyCycleFilter === 'all';
+                let passWeight = activeWeightFilter === 'none' || activeWeightFilter === 'all';
+                let passKeepType = activeKeepTypeFilter === 'none' || activeKeepTypeFilter === 'all';
+
+                if (activeRestockCycleFilter && activeRestockCycleFilter !== 'none' && activeRestockCycleFilter !== 'all') {
+                    const cycle = item['입고주기'] ? parseFloat(item['입고주기']) : null;
+                    if (cycle !== null) {
+                        switch (activeRestockCycleFilter) {
+                            case "supershort": passRestockCycle = cycle <= 3.0; break;
+                            case "short": passRestockCycle = cycle > 3.0 && cycle <= 7.0; break;
+                            case "week": passRestockCycle = cycle > 7.0 && cycle <= 14.0; break;
+                            case "month": passRestockCycle = cycle > 14.0 && cycle <= 30.0; break;
+                            case "long": passRestockCycle = cycle > 30.0; break;
+                        }
+                    }
+                }
+                if (activeAvgSalesFilter && activeAvgSalesFilter !== 'none' && activeAvgSalesFilter !== 'all') {
+                    const sales = item['평균판매량'] ? parseFloat(item['평균판매량']) : null;
+                    if (sales !== null) {
+                        switch (activeAvgSalesFilter) {
+                            case "low": passAvgSales = sales <= 10.0; break;
+                            case "medium": passAvgSales = sales > 10.0 && sales <= 100.0; break;
+                            case "high": passAvgSales = sales > 100.0; break;
+                        }
+                    }       
+                }
+                if (activeSupplyCycleFilter && activeSupplyCycleFilter !== 'none' && activeSupplyCycleFilter !== 'all') {
+                    const supplycycle = item['보충주기'] ? parseFloat(item['보충주기']) : null;
+                    if (supplycycle !== null) {
+                        switch (activeSupplyCycleFilter) {
+                            case "not": passSupplyCycle = supplycycle === 0.0; break;
+                            case "less1day": passSupplyCycle = supplycycle !== 0.0 && supplycycle < 1.0; break;
+                            case "2day": passSupplyCycle = supplycycle >= 1.0 && supplycycle < 2.0; break;
+                            case "more2day": passSupplyCycle = supplycycle >= 2.0; break;
+                        }
+                    }       
+                }
+                if (activeWeightFilter && activeWeightFilter !== 'none' && activeWeightFilter !== 'all') {
+                    const weight = item['중량'] ? parseFloat(item['중량']) : null;
+                    if (weight !== null) {
+                        switch (activeWeightFilter) {
+                            case "less500": passWeight = weight < 500; break;
+                            case "500n1kg": passWeight = weight >= 500 && weight < 1000; break;
+                            case "more1kg": passWeight = weight >= 1000; break;
+                        }
+                    }       
+                }
+                if (activeSalesMethodFilter && activeSalesMethodFilter !== 'none' && activeSalesMethodFilter !== 'all') {
+                    const method = item['판매방법'];
+                    switch (activeSalesMethodFilter) {
+                        case "pre": passSalesMethod = method === '선판매'; break;
+                        case "post": passSalesMethod = method === '후판매'; break;
+                    }
+                }
+                if (activeKeepTypeFilter && activeKeepTypeFilter !== 'none' && activeKeepTypeFilter !== 'all') {
+                    const keepType = item['보관유형'];
+                    switch (activeKeepTypeFilter) {
+                        case "room": passKeepType = keepType === '상온'; break;
+                        case "cold": passKeepType = keepType === '냉장'; break;
+                        case "frozen": passKeepType = keepType === '냉동'; break;
+                    }
+                }
+                return passRestockCycle && passAvgSales && passSalesMethod && passSupplyCycle && passWeight && passKeepType;
+            });
+        }
+
+        function linkInventoryToSVG() {
+            const svgContainer = document.getElementById('svgContainer');
+            const svg = svgContainer.querySelector('svg');
+            if (!svg) return;
+            const groupedData = groupInventoryData(inventoryData);
+            svg.querySelectorAll('.cell').forEach(cell => {
+                const location = cell.getAttribute('data-value');
+                if (groupedData[location]) {
+                    cell.inventoryData = groupedData[location];
+                    cell.addEventListener('mouseover', handleMouseOver);
+                    cell.addEventListener('mouseout', handleMouseOut);
+                    cell.addEventListener('click', handleCellClick);
+                }
+            });
+        }
+
+        function initializeCellColors() {
+            const svg = document.querySelector('#svgContainer svg');
+            if (!svg) return;
+            svg.querySelectorAll('.cell').forEach(cell => {
+                if (cell.inventoryData && cell.inventoryData.length > 0) {
+                    cell.style.fill = 'gray';
+                } else {
+                    cell.style.fill = 'white';
+                }
+            });
+        }
+
+        function groupInventoryData(data) {
+            return data.reduce((acc, item) => {
+                const location = item['지번명'] || item['지번'];
+                if (!acc[location]) {
+                    acc[location] = [];
+                }
+                acc[location].push(item);
+                return acc;
+            }, {});
+        }
+
+        function updateElementColor(element, items) {
+            if (!items || items.length === 0) {
+                element.style.fill = 'white';
+                return;
+            }
+            let filteredItems;
+            if (searchResults.length > 0) {
+                filteredItems = element.searchResults ? filterInventoryData(element.searchResults) : [];
+            } else {
+                filteredItems = filterInventoryData(items);
+            }
+            if (filteredItems.length === 0) {
+                element.style.fill = 'white';
+                return;
+            }
+
+            const activeFilters = [activeRestockCycleFilter, activeAvgSalesFilter, activeSalesMethodFilter, activeSupplyCycleFilter, activeWeightFilter, activeKeepTypeFilter]
+                .filter(filter => filter !== 'none');
+
+            if (searchResults.length > 0 && activeFilters.length === 0) {
+                element.style.fill = searchResults.includes(element) ? 'gray' : 'white';
+                return;
+            }   
+
+            if (activeFilters.length > 0) {
+                if (activeFilters.includes('all')) {
+                    let colors = [];
+                    if (activeRestockCycleFilter === 'all') {
+                        const cycles = filteredItems.map(item => item['입고주기'] ? parseFloat(item['입고주기']) : -1).filter(cycle => cycle !== -1);
+                        colors = colors.concat(getCycleColors(cycles));
+                    }
+                    if (activeAvgSalesFilter === 'all') {
+                        const sales = filteredItems.map(item => item['평균판매량'] ? parseFloat(item['평균판매량']) : -1).filter(sale => sale !== -1);
+                        colors = colors.concat(getSalesColors(sales));
+                    }
+                    if (activeSupplyCycleFilter === 'all') {
+                        const supplycycles = filteredItems.map(item => item['보충주기'] ? parseFloat(item['보충주기']) : -1).filter(supplycycle => supplycycle !== -1);
+                        colors = colors.concat(getSupplyCycleColors(supplycycles));
+                    }
+                    if (activeWeightFilter === 'all') {
+                        const weights = filteredItems.map(item => item['중량'] ? parseFloat(item['중량']) : -1).filter(weight => weight !== -1);
+                        colors = colors.concat(getWeightColors(weights));
+                    }
+                    if (activeKeepTypeFilter === 'all') {
+                        const keepTypes = filteredItems.map(item => item['보관유형']);
+                        if (keepTypes.includes('상온')) colors.push("yellow");
+                        if (keepTypes.includes('냉장')) colors.push("green");
+                        if (keepTypes.includes('냉동')) colors.push("blue");
+                    }
+                    if (activeSalesMethodFilter === 'all') {
+                        const methods = filteredItems.map(item => item['판매방법']);
+                        if (methods.includes('선판매')) colors.push("red");
+                        if (methods.includes('후판매')) colors.push("blue");
+                    }
+                    createPatternFill(element, [...new Set(colors)]);
+                } else {
+                    let color = 'gray';
+                    if (activeRestockCycleFilter !== 'none') {
+                        const cycles = filteredItems.map(item => item['입고주기'] ? parseFloat(item['입고주기']) : -1).filter(cycle => cycle !== -1);
+                        if (cycles.length > 0) color = getCycleColor(Math.max(...cycles));
+                    } else if (activeAvgSalesFilter !== 'none') {
+                        const sales = filteredItems.map(item => item['평균판매량'] ? parseFloat(item['평균판매량']) : -1).filter(sale => sale !== -1);
+                        if (sales.length > 0) color = getSalesColor(Math.max(...sales));
+                    } else if (activeSupplyCycleFilter !== 'none') {
+                        const supplycycles = filteredItems.map(item => item['보충주기'] ? parseFloat(item['보충주기']) : -1).filter(supplycycle => supplycycle !== -1);
+                        if (supplycycles.length > 0) color = getSupplyCycleColor(Math.max(...supplycycles));
+                    } else if (activeWeightFilter !== 'none') {
+                        const weights = filteredItems.map(item => item['중량'] ? parseFloat(item['중량']) : -1).filter(weight => weight !== -1);
+                        if (weights.length > 0) color = getWeightColor(Math.max(...weights));   
+                    } else if (activeKeepTypeFilter !== 'none') {
+                        const keepTypes = filteredItems.map(item => item['보관유형']);
+                        if (keepTypes.includes('상온')) color = "yellow";
+                        else if (keepTypes.includes('냉장')) color = "green";
+                        else if (keepTypes.includes('냉동')) color = "blue";
+                    } else if (activeSalesMethodFilter !== 'none') {
+                        const methods = filteredItems.map(item => item['판매방법']);
+                        if (methods.includes('선판매')) color = "red";
+                        else if (methods.includes('후판매')) color = "blue";
+                    }
+                    element.style.fill = color;
+                }
+            } else {
+                element.style.fill = 'gray';
+            }
+        }
+
+        function getCycleColor(cycle) {
+            if (cycle <= 3.0) return "blue";
+            if (cycle <= 7.0) return "green";
+            if (cycle <= 14.0) return "orange";
+            if (cycle <= 30.0) return "yellow";
+            return "red";
+        }
+
+        function getSupplyCycleColor(supplycycle) {
+            if (supplycycle === 0) return "gray";
+            if (supplycycle < 1.0) return "green";
+            if (supplycycle <= 2.0) return "yellow";
+            return "red";
+        }
+
+        function getSalesColor(sale) {
+            if (sale <= 10.0) return "red";
+            if (sale <= 100.0) return "yellow";
+            return "green";
+        }
+
+        function getWeightColor(weight) {
+            if (weight < 500) return "red";
+            if (weight < 1000) return "yellow";
+            return "green";
+        }   
+
+        function getCycleColors(cycles) { return [...new Set(cycles.map(getCycleColor))]; }
+        function getSalesColors(sales) { return [...new Set(sales.map(getSalesColor))]; }
+        function getSupplyCycleColors(supplycycles) { return [...new Set(supplycycles.map(getSupplyCycleColor))]; }
+        function getWeightColors(weights) { return [...new Set(weights.map(getWeightColor))]; }
+
+        function getSkuCountColor(count) {
+            if (!count || count === 0) return "white";
+            if (count === 1) return "blue";
+            if (count === 2) return "green";
+            if (count === 3) return "orange";
+            if (count === 4) return "yellow";
+            return "red"; 
+        }
+
+        function calculateZoneProductCounts() {
+            const skuSets = {};
+            inventoryData.forEach(item => {
+                const location = item['지번명'] || item['지번'];
+                const goodsCode = item['상품코드'];
+                if (!location || !goodsCode) return;
+                if (!skuSets[location]) skuSets[location] = new Set();
+                skuSets[location].add(goodsCode);
+            });
+            zoneProductCounts = {};
+            Object.keys(skuSets).forEach(location => {
+                zoneProductCounts[location] = skuSets[location].size;
+            });
+            return zoneProductCounts;
+        }
+
+        function applySkuCountFilter() {
+            const svg = document.querySelector('#svgContainer svg');
+            if (!svg) return;
+            svg.querySelectorAll('.cell').forEach(cell => {
+                const location = cell.getAttribute('data-value');
+                const count = zoneProductCounts[location] || 0;
+                cell.style.fill = getSkuCountColor(count);
+            });
+        }
+
+        function handleSkuCountFilterChange() {
+            activeSkuCountFilter = document.getElementById("skuCountFilterToggle").checked;
+            if (activeSkuCountFilter) {
+                calculateZoneProductCounts();
+                applySkuCountFilter();
+            } else {
+                applyFilters();
+            }
+        }
+
+        function createPatternFill(element, colors) {
+            const svgns = "http://www.w3.org/2000/svg";
+            const patternId = `pattern-${colors.join('-')}`;
+            let pattern = document.getElementById(patternId);
+            if (!pattern) {
+                pattern = document.createElementNS(svgns, "pattern");
+                pattern.setAttribute("id", patternId);
+                pattern.setAttribute("patternUnits", "userSpaceOnUse");
+                pattern.setAttribute("width", colors.length * 5);
+                pattern.setAttribute("height", "10");
+                colors.forEach((color, index) => {
+                    const rect = document.createElementNS(svgns, "rect");
+                    rect.setAttribute("x", index * 5);
+                    rect.setAttribute("width", "5");
+                    rect.setAttribute("height", "10");
+                    rect.setAttribute("fill", color);
+                    pattern.appendChild(rect);
+                });
+                const svg = document.querySelector("#svgContainer svg");
+                const defs = svg.querySelector("defs") || svg.insertBefore(document.createElementNS(svgns, "defs"), svg.firstChild);
+                defs.appendChild(pattern);
+            }
+            element.style.fill = `url(#${patternId})`;
+        }
+
+        function getZone(location) {
+            if (location === '2F-H1-1-1') return 'H1';
+            const match = location.match(/-([A-Z]{1,2}\d{0,2})/);
+            if (match) {
+                const zoneCode = match[1];
+                if (zoneCode.startsWith('I')) {
+                    return zoneCode.length > 1 ? zoneCode.substring(0, 2) : zoneCode;
+                } else if (zoneCode === 'D98' || zoneCode === 'D99' || zoneCode === 'D97') {
+                    return zoneCode;
+                } else if (zoneCode.startsWith('D')) {
+                    return 'D';
+                } else if (zoneCode.startsWith('H0')) {
+                    return 'H0';
+                } else if (zoneCode.startsWith('H')) {
+                    return 'H';
+                } else if (zoneCode === 'E99') {
+                    return 'E99';  
+                } else if (zoneCode.startsWith('Z')) {
+                    return 'Z';      
+                } else {
+                    return zoneCode.replace(/\d+$/, '');
+                }
+            }
+            return null;
+        }
+
+        function addZoneBoundaries() {
+            const svg = document.querySelector('#svgContainer svg');
+            if (!svg) return;
+            const cells = svg.querySelectorAll('.cell');
+            const zones = new Map();
+            cells.forEach(cell => {
+                const location = cell.getAttribute('data-value');
+                const zone = getZone(location);
+                if (zone) {
+                    if (!zones.has(zone)) zones.set(zone, []);
+                    zones.get(zone).push(cell);
+                }
+            });
+            zones.forEach((zoneCells, zoneName) => {
+                const boundary = calculateZoneBoundary(zoneCells);
+                addBoundaryToSVG(svg, boundary, zoneName);
+            });
+        }
+
+        function calculateZoneBoundary(cells) {
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+            cells.forEach(cell => {
+                const rect = cell.getBBox();
+                minX = Math.min(minX, rect.x);
+                minY = Math.min(minY, rect.y);
+                maxX = Math.max(maxX, rect.x + rect.width);
+                maxY = Math.max(maxY, rect.y + rect.height);
+            });
+            const boundary = [
+                {x: minX, y: minY}, {x: maxX, y: minY}, {x: maxX, y: maxY}, {x: minX, y: maxY}
+            ];
+            return { points: boundary, x: minX, y: minY, width: maxX - minX, height: maxY - minY };
+        }
+
+        function addBoundaryToSVG(svg, boundary, zoneName) {
+            if (zoneName === "AC") return; 
+            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            let d = `M${boundary.points[0].x},${boundary.points[0].y}`;
+            for (let i = 1; i < boundary.points.length; i++) {
+                d += `L${boundary.points[i].x},${boundary.points[i].y}`;
+            }
+            d += "Z"; 
+            path.setAttribute("d", d);
+            path.setAttribute("fill", "none");
+            path.setAttribute("stroke", "brown");
+            path.setAttribute("stroke-width", "2");
+            path.setAttribute("class", "zone-boundary");
+            svg.appendChild(path);
+            
+            const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            text.setAttribute("x", boundary.x + boundary.width / 2);
+            text.setAttribute("y", boundary.y - 5);
+            text.setAttribute("text-anchor", "middle");
+            text.setAttribute("fill", "black");
+            text.setAttribute("font-size", "14");
+            text.setAttribute("font-weight", "bold");
+            text.textContent = zoneName;
+            svg.appendChild(text);
+            
+            const textBBox = text.getBBox();
+            const background = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+            background.setAttribute("x", textBBox.x - 2);
+            background.setAttribute("y", textBBox.y - 2);
+            background.setAttribute("width", textBBox.width + 3);
+            background.setAttribute("height", textBBox.height + 3);
+            background.setAttribute("fill", "white");
+            background.setAttribute("fill-opacity", "0.7");
+            svg.insertBefore(background, text);
+        }
+
+        function loadSVGWithZones(sheet) {
+            fetch(`/get_svg/${sheet}`)
+                .then(response => response.text())
+                .then(svgContent => {
+                    const parser = new DOMParser();
+                    const svgDoc = parser.parseFromString(svgContent, "image/svg+xml");
+                    const svgElement = svgDoc.documentElement;
+                    const svgContainer = document.getElementById('svgContainer');
+                    svgContainer.innerHTML = '';
+                    svgContainer.style.paddingLeft = '250px';
+                    
+                    currentScale = getInitialScale(sheet);
+                    svgElement.style.transform = `scale(${currentScale})`;
+                    svgElement.style.transformOrigin = '0 0';
+                    
+                    svgContainer.appendChild(svgElement);
+                    addZoneBoundaries();
+                    setupEventListeners();
+                    loadInventoryData().then(() => {
+                        linkInventoryToSVG();
+                        initializeCellColors();
+                        calculateZoneProductCounts(); 
+                    });
+                });
+        }
+
+        function logout() {
+            if (confirm("로그아웃 하시겠습니까?")) {
+                window.location.href = "/logout";
+                alert("로그아웃 되었습니다.");
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const style = document.createElement('style');
+            style.textContent = `
+                #svgContainer svg {
+                    transition: transform 0.3s ease;
+                }
+            `;
+            document.head.appendChild(style);
+            
+            const controls = document.getElementById('controls');
+            const svgContainer = document.getElementById('svgContainer');
+            const summaryDashboard = document.getElementById('summaryDashboard');
+            const toggleBtn = document.getElementById('toggleBtn');
+            const slidePanel = document.getElementById('slidePanel');
+
+            if (currentSheet === 'Summary') {
+                if (controls) controls.style.display = 'none';
+                if (svgContainer) svgContainer.style.display = 'none';
+                if (toggleBtn) toggleBtn.style.display = 'none';
+                if (summaryDashboard) {
+                    summaryDashboard.style.display = 'block';
+                    loadSummaryDashboard();
+                }
+            } else {
+                if (controls) controls.style.display = 'block';
+                if (svgContainer) svgContainer.style.display = 'block';
+                if (toggleBtn) toggleBtn.style.display = 'block';
+                if (summaryDashboard) summaryDashboard.style.display = 'none';
+                loadSVGWithZones(currentSheet);
+            }
+
+            document.getElementById('restockCycleSelect').addEventListener('change', handleRestockCycleFilterChange);
+            document.getElementById('avgSalesSelect').addEventListener('change', handleAvgSalesFilterChange);
+            document.getElementById('supplyCycleSelect').addEventListener('change', handleSupplyCycleFilterChange);
+            document.getElementById('salesMethodSelect').addEventListener('change', handleSalesMethodFilterChange);
+            document.getElementById('weightSelect').addEventListener('change', handleWeightFilterChange);
+            document.getElementById('keepTypeSelect').addEventListener('change', handleKeepTypeFilterChange);
+            const skuCountFilterToggle = document.getElementById('skuCountFilterToggle');
+            if (skuCountFilterToggle) {
+                skuCountFilterToggle.addEventListener('change', handleSkuCountFilterChange);
+            }
+            document.getElementById('searchDropdown').addEventListener('change', () => {
+                document.getElementById('searchInput').value = '';
+                search();
+            });
+            document.querySelector('button[onclick="resetSearch()"]').addEventListener('click', resetSearch);
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => switchTab(tab.dataset.sheet));
+            });
+            document.querySelector('button[onclick="search()"]').addEventListener('click', search);
+            document.getElementById('searchInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault(); 
+                    search();
+                }
+            });
+
+            activeRestockCycleFilter = 'none';
+            activeAvgSalesFilter = 'none';
+            activeSalesMethodFilter = 'none';
+            activeSupplyCycleFilter = 'none';
+            activeWeightFilter = 'none';
+            activeKeepTypeFilter = 'none';
+            activeSkuCountFilter = false;
+            setupEventListeners();
+            updateResultCount();
+            
+            if (toggleBtn && slidePanel) {
+                toggleBtn.addEventListener('click', () => {
+                    slidePanel.classList.toggle('open');
+                    toggleBtn.style.transform = slidePanel.classList.contains('open') 
+                        ? 'rotate(180deg)' 
+                        : 'rotate(0deg)';
+                });
+            }
+        });
+    </script>
+</body>
+</html>
