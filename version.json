@@ -9,5 +9,6 @@
   "templates/login.html": "c25d8f40b1475362ee8bd6f71627acc7957af1b2bef8783d8db38a1da03f292b",
   "templates/index.html": "9156d2300621a03af819484bd89b36e6edeac2564707f126abcf95931f06f0be",
   "static/styles.css": "59287bcb9890909af9994e1b57b387cad358c6c308d283d0cfdba8abaa5f25a6",
+  "static/index.html": "fe6d7f4f21dfd87ef1d214c4c53bc0ca23fd3b15bec8c278d3dd682664b11a03",
   "app2.py": "81e35e1a4572536c17ff1cfc20011a2f6a701a5f2256c3a349290cb529e75460"
 }
